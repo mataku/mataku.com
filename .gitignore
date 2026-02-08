@@ -1,0 +1,26 @@
+# Built application files
+build/
+.gradle/
+/output/*
+!/output/articles.js
+!/output/styles.css
+!/output/index.html
+
+.env
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# direnv
+.envrc
+
+.kotlin/
+
+.wrangler/
+node_modules/
