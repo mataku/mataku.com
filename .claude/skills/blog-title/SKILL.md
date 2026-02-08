@@ -9,6 +9,16 @@ disable-model-invocation: true
 
 Generate a blog article filename from the given argument.
 
+### Argument validation
+
+**If no argument is provided, output the following error message and stop:**
+
+```
+Error: Title argument is required.
+Usage: /blog-title <title>
+Example: /blog-title FlutterでWebViewを使う方法
+```
+
 ### Rules
 
 1. **English only**: Translate to English if Japanese is provided
