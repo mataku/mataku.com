@@ -4,6 +4,10 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import java.nio.file.Path
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import kotlin.io.path.createDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
@@ -37,9 +41,10 @@ class Generator {
             val article = FrontmatterParser.parse(raw)
 
             val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(article.content)
-            val htmlBody = HtmlGenerator(article.content, parsedTree, flavour).generateHtml()
+            val rawHtmlBody = HtmlGenerator(article.content, parsedTree, flavour).generateHtml()
                 .removePrefix("<body>")
                 .removeSuffix("</body>")
+            val htmlBody = ImageCaptionTransformer.transform(rawHtmlBody)
 
             val tagsHtml = if (article.tags.isNotEmpty()) {
                 article.tags.joinToString("") { """<span class="tag">$it</span>""" }
@@ -48,6 +53,7 @@ class Generator {
             val variables = article.metadata.toMutableMap()
             variables["content"] = htmlBody
             variables["tags"] = tagsHtml
+            variables["date"] = formatDateForDisplay(article.metadata["date"] ?: "")
 
             val html = TemplateEngine.render(templatePath, variables)
 
@@ -59,8 +65,7 @@ class Generator {
             articleMetadataList.add(
                 mapOf(
                     "title" to (article.metadata["title"] ?: slug),
-                    "date" to (article.metadata["date"] ?: ""),
-                    "slug" to slug,
+                    "date" to formatDateForDisplay(article.metadata["date"] ?: ""),
                     "path" to "/articles/$slug",
                     "tags" to article.tags
                 )
@@ -72,5 +77,21 @@ class Generator {
         val jsonOutputFile = outputDir.resolve("articles.json")
         jsonOutputFile.writeText(json)
         println("Generated: $jsonOutputFile")
+    }
+
+    private fun formatDateForDisplay(dateString: String): String {
+        if (dateString.isBlank()) return ""
+
+        return try {
+            val offsetDateTime = OffsetDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        } catch (e: DateTimeParseException) {
+            try {
+                LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE)
+                dateString
+            } catch (e: DateTimeParseException) {
+                throw IllegalArgumentException("Invalid date format: $dateString")
+            }
+        }
     }
 }

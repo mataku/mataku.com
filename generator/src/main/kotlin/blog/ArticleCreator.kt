@@ -1,7 +1,7 @@
 package blog
 
 import java.nio.file.Path
-import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
@@ -28,7 +28,7 @@ object ArticleCreator {
             System.exit(1)
         }
 
-        val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val today = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))
         val variables = mapOf("date" to today)
 
         val content = TemplateEngine.render(templatePath, variables)

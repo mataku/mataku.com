@@ -33,11 +33,10 @@ object JsonWriter {
         val entries = articles.joinToString(",\n  ") { article ->
             val title = escapeString((article["title"] as? String) ?: "")
             val date = escapeString((article["date"] as? String) ?: "")
-            val slug = escapeString((article["slug"] as? String) ?: "")
             val path = escapeString((article["path"] as? String) ?: "")
             @Suppress("UNCHECKED_CAST")
             val tags = buildJsonArray((article["tags"] as? List<String>) ?: emptyList())
-            """{"title":"$title","date":"$date","slug":"$slug","path":"$path","tags":$tags}"""
+            """{"title":"$title","date":"$date","path":"$path","tags":$tags}"""
         }
         return "[\n  $entries\n]"
     }
