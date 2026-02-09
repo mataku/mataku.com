@@ -27,3 +27,11 @@ tasks.register<JavaExec>("new") {
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
 }
+
+tasks.register<JavaExec>("feed") {
+    group = "application"
+    description = "Generate RSS feed (feed.xml)"
+    mainClass.set("blog.FeedGenerator")
+    classpath = sourceSets["main"].runtimeClasspath
+    workingDir = rootProject.projectDir
+}

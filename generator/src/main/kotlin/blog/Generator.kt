@@ -44,20 +44,27 @@ class Generator {
             val rawHtmlBody = HtmlGenerator(article.content, parsedTree, flavour).generateHtml()
                 .removePrefix("<body>")
                 .removeSuffix("</body>")
-            val htmlBody = ImageCaptionTransformer.transform(rawHtmlBody)
+            val captionedHtml = ImageCaptionTransformer.transform(rawHtmlBody)
+            val xEmbedResult = XEmbedTransformer.transform(captionedHtml)
+            val htmlBody = xEmbedResult.html
 
             val tagsHtml = if (article.tags.isNotEmpty()) {
                 article.tags.joinToString("") { """<span class="tag">$it</span>""" }
             } else ""
 
+            val slug = file.nameWithoutExtension
+
             val variables = article.metadata.toMutableMap()
             variables["content"] = htmlBody
             variables["tags"] = tagsHtml
             variables["date"] = formatDateForDisplay(article.metadata["date"] ?: "")
+            variables["url"] = "https://mataku.com/articles/$slug"
+            variables["description"] = generateDescription(htmlBody)
+            variables["x_widgets_script"] = if (xEmbedResult.hasXEmbed) {
+                """<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>"""
+            } else ""
 
             val html = TemplateEngine.render(templatePath, variables)
-
-            val slug = file.nameWithoutExtension
             val outputFile = articlesOutputDir.resolve("$slug.html")
             outputFile.writeText(html)
             println("Generated: $outputFile")
@@ -92,6 +99,20 @@ class Generator {
             } catch (e: DateTimeParseException) {
                 throw IllegalArgumentException("Invalid date format: $dateString")
             }
+        }
+    }
+
+    private fun generateDescription(htmlBody: String, maxLength: Int = 80): String {
+        val withoutHeaders = htmlBody.replace(Regex("<h[1-6][^>]*>.*?</h[1-6]>", RegexOption.DOT_MATCHES_ALL), "")
+        val withoutLinks = withoutHeaders.replace(Regex("<a[^>]*>(.*?)</a>")) { it.groupValues[1] }
+        val text = withoutLinks.replace(Regex("<[^>]+>"), "")
+            .replace(Regex("https?://[a-zA-Z0-9./?=&#_%-]+"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+        return if (text.length > maxLength) {
+            text.take(maxLength) + "..."
+        } else {
+            text
         }
     }
 }
