@@ -11,26 +11,32 @@ fun fetch(request: Request, env: dynamic): Promise<Response> {
     val key = resolveKey(pathname)
 
     if (key == null) {
-        return Promise.resolve(notFoundResponse())
+        return notFoundResponse(env)
     }
 
     val contentType = contentTypeFor(key)
 
     return (env.BUCKET.get(key) as Promise<dynamic>).then { obj: dynamic ->
         if (obj == null) {
-            notFoundResponse()
+            notFoundResponse(env)
         } else {
             val headers: dynamic = object {}
             headers["content-type"] = contentType
-            Response(obj.body, ResponseInit(headers = headers))
+            Promise.resolve(Response(obj.body, ResponseInit(headers = headers)))
         }
-    }
+    }.asDynamic().unsafeCast<Promise<Response>>()
 }
 
-private fun notFoundResponse(): Response {
-    val headers: dynamic = object {}
-    headers["content-type"] = "text/plain; charset=utf-8"
-    return Response("Not Found", ResponseInit(status = 404, headers = headers))
+private fun notFoundResponse(env: dynamic): Promise<Response> {
+    return (env.BUCKET.get("404.html") as Promise<dynamic>).then { obj: dynamic ->
+        val headers: dynamic = object {}
+        headers["content-type"] = "text/html; charset=utf-8"
+        if (obj == null) {
+            Response("Not Found", ResponseInit(status = 404, headers = headers))
+        } else {
+            Response(obj.body, ResponseInit(status = 404, headers = headers))
+        }
+    }
 }
 
 private fun resolveKey(pathname: String): String? {
