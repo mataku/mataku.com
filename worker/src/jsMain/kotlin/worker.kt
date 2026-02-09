@@ -43,6 +43,7 @@ private fun resolveKey(pathname: String): String? {
     if (pathname.contains("..") || pathname.contains("//")) return null
     if (pathname.isEmpty()) return "index.html"
     if (pathname == "articles.json") return pathname
+    if (pathname == "feed.xml") return pathname
     if (pathname.startsWith("assets/")) return pathname
     if (pathname.startsWith("images/")) return pathname
     if (pathname.startsWith("articles/") && !pathname.contains(".")) {
@@ -59,6 +60,7 @@ private fun contentTypeFor(filename: String): String {
         filename.endsWith(".json") -> "application/json; charset=utf-8"
         filename.endsWith(".gif") -> "image/gif"
         filename.endsWith(".png") -> "image/png"
+        filename.endsWith(".xml") -> "application/rss+xml; charset=utf-8"
         else -> "application/octet-stream"
     }
 }
