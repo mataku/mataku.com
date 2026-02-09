@@ -22,6 +22,7 @@ build-worker:
 
 deploy_assets: build-worker
 	npx wrangler r2 object put mataku-blog/index.html --file=output/index.html --remote
+	# npx wrangler r2 object put mataku-blog/404.html --file=output/404.html --remote
 	@for file in output/assets/*; do \
 		filename=$$(basename $$file); \
 		npx wrangler r2 object put mataku-blog/assets/$$filename --file=$$file --remote; \
