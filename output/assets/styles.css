@@ -196,23 +196,11 @@ article pre {
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-article pre::before {
-    content: "";
-    position: absolute;
-    top: 12px;
-    left: 14px;
-    width: 10px;
-    height: 10px;
-    background: #ff5f56;
-    border-radius: 50%;
-    box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #27ca40;
-}
-
 article pre code {
     display: block;
     background: none;
     padding: 0;
-    padding-top: 1.2rem;
+    padding-top: 0;
     font-size: 0.82rem;
     color: var(--color-code-text);
     line-height: 1.7;
@@ -557,15 +545,6 @@ article .note::before {
         margin: 1.5rem -1rem;
         border-radius: 0;
     }
-
-    article pre::before {
-        display: none;
-    }
-
-    article pre code {
-        padding-top: 0;
-    }
-
 
     article blockquote {
         padding: 0.6rem 0 0.6rem 1.2rem;
