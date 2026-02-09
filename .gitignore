@@ -23,6 +23,8 @@ Thumbs.db
 .envrc
 
 .kotlin/
+.idea/
+local.properties
 
 .wrangler/
 node_modules/
