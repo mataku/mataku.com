@@ -6,7 +6,6 @@ fetch('/articles.json')
             var card = document.createElement('a');
             card.href = article.path;
             card.className = 'article-card';
-            M
             var title = document.createElement('h2');
             title.textContent = article.title;
 
