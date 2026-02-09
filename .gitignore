@@ -4,7 +4,6 @@ build/
 /output/*
 !/output/articles.js
 !/output/styles.css
-!/output/index.html
 !/output/assets/
 !/output/images/
 

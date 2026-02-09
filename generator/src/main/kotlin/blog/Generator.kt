@@ -21,6 +21,15 @@ class Generator {
     private val outputDir: Path = projectRoot.resolve("output")
     private val articlesOutputDir: Path = outputDir.resolve("articles")
     private val templatePath: Path = projectRoot.resolve("templates/article.html")
+    private val indexTemplatePath: Path = projectRoot.resolve("templates/index.html")
+    private val notFoundTemplatePath: Path = projectRoot.resolve("templates/404.html")
+
+    private val footerHtml = """
+        <footer>
+            &copy; Takuma Homma
+            <span class="footer-credit">Made with <a href="https://kotlinlang.org" target="_blank" rel="noopener">Kotlin</a></span>
+        </footer>
+    """.trimIndent()
 
     fun run() {
         articlesOutputDir.createDirectories()
@@ -60,6 +69,7 @@ class Generator {
             variables["date"] = formatDateForDisplay(article.metadata["date"] ?: "")
             variables["url"] = "https://mataku.com/articles/$slug"
             variables["description"] = generateDescription(htmlBody)
+            variables["footer"] = footerHtml
             variables["x_widgets_script"] = if (xEmbedResult.hasXEmbed) {
                 """<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>"""
             } else ""
@@ -84,6 +94,16 @@ class Generator {
         val jsonOutputFile = outputDir.resolve("articles.json")
         jsonOutputFile.writeText(json)
         println("Generated: $jsonOutputFile")
+
+        generateStaticPage(indexTemplatePath, outputDir.resolve("index.html"))
+        generateStaticPage(notFoundTemplatePath, outputDir.resolve("404.html"))
+    }
+
+    private fun generateStaticPage(templatePath: Path, outputPath: Path) {
+        val variables = mapOf("footer" to footerHtml)
+        val html = TemplateEngine.render(templatePath, variables)
+        outputPath.writeText(html)
+        println("Generated: $outputPath")
     }
 
     private fun formatDateForDisplay(dateString: String): String {
