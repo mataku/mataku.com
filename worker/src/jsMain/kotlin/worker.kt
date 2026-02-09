@@ -33,11 +33,12 @@ private fun notFoundResponse(): Response {
     return Response("Not Found", ResponseInit(status = 404, headers = headers))
 }
 
-private val allowedFiles = setOf("articles.js", "styles.css", "articles.json")
-
 private fun resolveKey(pathname: String): String? {
+    if (pathname.contains("..") || pathname.contains("//")) return null
     if (pathname.isEmpty()) return "index.html"
-    if (pathname in allowedFiles) return pathname
+    if (pathname == "articles.json") return pathname
+    if (pathname.startsWith("assets/")) return pathname
+    if (pathname.startsWith("images/")) return pathname
     if (pathname.startsWith("articles/") && !pathname.contains(".")) {
         return "$pathname.html"
     }
@@ -50,6 +51,8 @@ private fun contentTypeFor(filename: String): String {
         filename.endsWith(".css") -> "text/css; charset=utf-8"
         filename.endsWith(".js") -> "application/javascript; charset=utf-8"
         filename.endsWith(".json") -> "application/json; charset=utf-8"
+        filename.endsWith(".gif") -> "image/gif"
+        filename.endsWith(".png") -> "image/png"
         else -> "application/octet-stream"
     }
 }
