@@ -5,6 +5,7 @@ build/
 !/output/articles.js
 !/output/styles.css
 !/output/index.html
+!/output/assets/
 
 .env
 
