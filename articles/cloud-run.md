@@ -4,7 +4,6 @@ date: 2022-05-02T21:26:43+09:00
 draft: false
 tags:
   - 日常
-  - 技術
 ---
 
 Heroku で動かしていたアプリケーションを Google Cloud Run と Cloud Scheduler に移した。以下みたいな用途で Heroku を利用していた。

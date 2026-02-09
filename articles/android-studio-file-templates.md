@@ -5,7 +5,6 @@ draft: false
 tags:
   - 日常
   - Android
-  - 技術
 ---
 
 https://link.medium.com/tGW5trclW8
