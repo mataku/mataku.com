@@ -6,6 +6,7 @@ build/
 !/output/styles.css
 !/output/index.html
 !/output/assets/
+!/output/images/
 
 .env
 
