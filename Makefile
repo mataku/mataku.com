@@ -1,4 +1,4 @@
-.PHONY: generate deploy new build-worker
+.PHONY: generate deploy new build-worker feed deploy_images
 
 generate:
 	./gradlew :generator:run
@@ -14,15 +14,31 @@ new:
 %:
 	@:
 
+feed:
+	./gradlew :generator:feed
+
 build-worker:
 	./gradlew :worker:compileProductionExecutableKotlinJs
 
-deploy: generate build-worker
+deploy_assets: build-worker
 	npx wrangler r2 object put mataku-blog/index.html --file=output/index.html --remote
-	npx wrangler r2 object put mataku-blog/styles.css --file=output/styles.css --remote
-	npx wrangler r2 object put mataku-blog/articles.js --file=output/articles.js --remote
+	@for file in output/assets/*; do \
+		filename=$$(basename $$file); \
+		npx wrangler r2 object put mataku-blog/assets/$$filename --file=$$file --remote; \
+	done
+	npx wrangler deploy
+
+deploy_images:
+	@for file in output/images/*; do \
+		filename=$$(basename $$file); \
+		npx wrangler r2 object put mataku-blog/images/$$filename --file=$$file --remote; \
+	done
+
+deploy: generate build-worker
 	@for file in output/articles/*.html; do \
 		filename=$$(basename $$file); \
 		npx wrangler r2 object put mataku-blog/articles/$$filename --file=$$file --remote; \
 	done
-	npx wrangler deploy
+	npx wrangler r2 object put mataku-blog/articles.json --file=output/articles.json --remote
+	npx wrangler r2 object put mataku-blog/feed.xml --file=output/feed.xml --remote
+	# npx wrangler deploy
