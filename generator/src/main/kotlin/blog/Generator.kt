@@ -55,7 +55,8 @@ class Generator {
                 .removeSuffix("</body>")
             val captionedHtml = ImageCaptionTransformer.transform(rawHtmlBody)
             val xEmbedResult = XEmbedTransformer.transform(captionedHtml)
-            val htmlBody = xEmbedResult.html
+            val gistEmbeddedHtml = GistEmbedTransformer.transform(xEmbedResult.html)
+            val htmlBody = gistEmbeddedHtml
 
             val tagsHtml = if (article.tags.isNotEmpty()) {
                 article.tags.joinToString("") { """<span class="tag">$it</span>""" }

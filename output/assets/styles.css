@@ -442,6 +442,10 @@ article figcaption {
     font-style: italic;
 }
 
+article .twitter-tweet {
+    margin: 0 auto !important;
+}
+
 article blockquote {
     border-left: 3px solid var(--color-accent);
     padding: 0.8rem 0 0.8rem 1.5rem;
@@ -638,4 +642,84 @@ article .note::before {
 
 .token.namespace {
     color: #4ec9b0;
+}
+
+/* GitHub Gist Dark Theme */
+.gist {
+    margin: 2rem 0;
+}
+
+.gist .gist-file {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.gist .gist-data {
+    background: var(--color-code-bg) !important;
+    border: none !important;
+}
+
+.gist .blob-wrapper {
+    border-radius: 8px 8px 0 0;
+}
+
+.gist .blob-code {
+    background: var(--color-code-bg) !important;
+    color: var(--color-code-text) !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.82rem !important;
+    line-height: 1.7 !important;
+    border: none !important;
+    padding: 0 1rem !important;
+}
+
+.gist .blob-num {
+    background: var(--color-code-bg) !important;
+    color: #6e7681 !important;
+    border: none !important;
+    padding: 0 0.8rem !important;
+}
+
+.gist .gist-meta {
+    background: #EEEEEE !important;
+    /* color: #586069 !important;
+    border: none !important;
+    border-radius: 0 0 8px 8px;
+    padding: 0.6rem 1rem !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.75rem !important; */
+}
+
+/* .gist .gist-meta a {
+    color: var(--color-accent) !important;
+}
+
+.gist .gist-meta a:hover {
+    text-decoration: underline;
+} */
+
+.gist .pl-c {
+    color: #6a9955 !important;
+}
+
+.gist .pl-k {
+    color: #569cd6 !important;
+}
+
+.gist .pl-s,
+.gist .pl-pds {
+    color: #ce9178 !important;
+}
+
+.gist .pl-en {
+    color: #dcdcaa !important;
+}
+
+.gist .pl-smi {
+    color: #9cdcfe !important;
+}
+
+.gist .pl-c1 {
+    color: #b5cea8 !important;
 }

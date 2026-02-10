@@ -42,4 +42,6 @@ deploy: generate build-worker
 	done
 	npx wrangler r2 object put mataku-blog/articles.json --file=output/articles.json --remote
 	npx wrangler r2 object put mataku-blog/feed.xml --file=output/feed.xml --remote
+	npx wrangler r2 object put mataku-blog/index.html --file=output/index.html --remote
+	npx wrangler r2 object put mataku-blog/404.html --file=output/404.html --remote
 	# npx wrangler deploy

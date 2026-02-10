@@ -8,16 +8,22 @@ object XEmbedTransformer {
         """(?<![">])(https://x\.com/[^/]+/status/\d+)"""
     )
 
+    // Twitter's widgets.js only recognizes twitter.com URLs for embedding.
+    // x.com URLs must be converted to twitter.com for the embed to render.
+    private fun convertToTwitterUrl(xUrl: String): String {
+        return xUrl.replace("https://x.com/", "https://twitter.com/")
+    }
+
     fun transform(html: String): TransformResult {
         var hasEmbed = false
         var result = X_LINK_REGEX.replace(html) { match ->
             hasEmbed = true
-            val url = match.groupValues[1]
+            val url = convertToTwitterUrl(match.groupValues[1])
             """<blockquote class="twitter-tweet"><a href="$url"></a></blockquote>"""
         }
         result = X_RAW_URL_REGEX.replace(result) { match ->
             hasEmbed = true
-            val url = match.groupValues[1]
+            val url = convertToTwitterUrl(match.groupValues[1])
             """<blockquote class="twitter-tweet"><a href="$url"></a></blockquote>"""
         }
         return TransformResult(result, hasEmbed)
