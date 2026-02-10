@@ -8,6 +8,15 @@ import kotlin.js.Promise
 fun fetch(request: Request, env: dynamic): Promise<Response> {
     val url = js("new URL(request.url)")
     val pathname = (url.pathname as String).removePrefix("/")
+
+    // Return robots.txt and sitemap.xml directly without R2 access since crawlers request them frequently
+    if (pathname == "robots.txt") {
+        return robotsTxtResponse()
+    }
+    if (pathname == "sitemap.xml") {
+        return sitemapXmlResponse()
+    }
+
     val key = resolveKey(pathname)
 
     if (key == null) {
@@ -63,4 +72,34 @@ private fun contentTypeFor(filename: String): String {
         filename.endsWith(".xml") -> "application/rss+xml; charset=utf-8"
         else -> "application/octet-stream"
     }
+}
+
+private fun robotsTxtResponse(): Promise<Response> {
+    val body = """
+        User-agent: *
+        Allow: /
+        Sitemap: https://mataku.com/sitemap.xml
+    """.trimIndent()
+    val headers: dynamic = object {}
+    headers["content-type"] = "text/plain; charset=utf-8"
+    headers["cache-control"] = "public, max-age=86400"
+    return Promise.resolve(Response(body, ResponseInit(headers = headers)))
+}
+
+private fun sitemapXmlResponse(): Promise<Response> {
+    val body = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>https://mataku.com/</loc>
+          </url>
+          <url>
+            <loc>https://mataku.com/feed.xml</loc>
+          </url>
+        </urlset>
+    """.trimIndent()
+    val headers: dynamic = object {}
+    headers["content-type"] = "application/xml; charset=utf-8"
+    headers["cache-control"] = "public, max-age=86400"
+    return Promise.resolve(Response(body, ResponseInit(headers = headers)))
 }
