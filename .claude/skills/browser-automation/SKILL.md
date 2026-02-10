@@ -11,11 +11,16 @@ allowed-tools:
 
 Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
 
-Core workflow:
-1. `agent-browser open <url>` - Navigate to page
-2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)
-3. `agent-browser click @e1` / `fill @e2 "text"` - Interact using refs
-4. Re-snapshot after page change
+Basic usage:
+
+```
+agent-browser open <url>              # Navigate to URL
+agent-browser click <sel>             # Click element
+agent-browser scroll <dir> [px]       # Scroll (up/down/left/right)
+agent-browser screenshot [path]       # Take screenshot (--full for full page, saves to a temporary directory if no path)
+agent-browser snapshot                # Accessibility tree with refs (best for AI)
+agent-browser close                   # Close browser (aliases: quit, exit)
+```
 
 ## Use Cases
 - Preview generated HTML at `http://localhost:8000`
