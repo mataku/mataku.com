@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
     application
 }
 
@@ -8,8 +8,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains:markdown:0.7.3")
-    implementation("org.snakeyaml:snakeyaml-engine:2.8")
+    implementation(libs.markdown)
+    implementation(libs.snakeyaml.engine)
 }
 
 application {

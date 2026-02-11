@@ -1,0 +1,12 @@
+[versions]
+kotlin = "2.1.0"
+markdown = "0.7.3"
+snakeyaml-engine = "2.8"
+
+[libraries]
+markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
+snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml-engine" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
