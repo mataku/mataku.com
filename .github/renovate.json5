@@ -5,12 +5,14 @@
   ],
   "timezone": "Asia/Tokyo",
   "schedule": [
-    "* 15 1 * *"
+    "* 15 * * 5"
   ],
   "packageRules": [
     {
-      "matchManagers": ["github-actions", "npm"],
-      "groupName": "devDependencies"
+      "matchManagers": ["github-actions", "npm", "gradle"],
+      "groupName": "devDependencies",
+      "automerge": true,
+      "platformAutomerge": true
     }
   ]
 }
