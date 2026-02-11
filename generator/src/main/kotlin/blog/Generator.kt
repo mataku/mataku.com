@@ -1,8 +1,10 @@
 package blog
 
-import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
+import org.commonmark.ext.autolink.AutolinkExtension
+import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
+import org.commonmark.ext.gfm.tables.TablesExtension
+import org.commonmark.parser.Parser
+import org.commonmark.renderer.html.HtmlRenderer
 import java.nio.file.Path
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -40,7 +42,13 @@ class Generator {
             return
         }
 
-        val flavour = GFMFlavourDescriptor()
+        val extensions = listOf(
+            TablesExtension.create(),
+            StrikethroughExtension.create(),
+            AutolinkExtension.create()
+        )
+        val parser = Parser.builder().extensions(extensions).build()
+        val renderer = HtmlRenderer.builder().extensions(extensions).build()
         val articleMetadataList = mutableListOf<Map<String, Any>>()
 
         for (file in markdownFiles) {
@@ -49,10 +57,8 @@ class Generator {
             val raw = file.readText()
             val article = FrontmatterParser.parse(raw)
 
-            val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(article.content)
-            val rawHtmlBody = HtmlGenerator(article.content, parsedTree, flavour).generateHtml()
-                .removePrefix("<body>")
-                .removeSuffix("</body>")
+            val document = parser.parse(article.content)
+            val rawHtmlBody = renderer.render(document)
             val captionedHtml = ImageCaptionTransformer.transform(rawHtmlBody)
             val xEmbedResult = XEmbedTransformer.transform(captionedHtml)
             val gistEmbeddedHtml = GistEmbedTransformer.transform(xEmbedResult.html)

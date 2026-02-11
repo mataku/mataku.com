@@ -1,10 +1,13 @@
 [versions]
 kotlin = "2.3.10"
-markdown = "0.7.3"
+commonmark = "0.27.1"
 snakeyaml-engine = "3.0.1"
 
 [libraries]
-markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
+commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
+commonmark-ext-gfm-tables = { module = "org.commonmark:commonmark-ext-gfm-tables", version.ref = "commonmark" }
+commonmark-ext-gfm-strikethrough = { module = "org.commonmark:commonmark-ext-gfm-strikethrough", version.ref = "commonmark" }
+commonmark-ext-autolink = { module = "org.commonmark:commonmark-ext-autolink", version.ref = "commonmark" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml-engine" }
 
 [plugins]

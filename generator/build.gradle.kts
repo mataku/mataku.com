@@ -8,7 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.markdown)
+    implementation(libs.commonmark)
+    implementation(libs.commonmark.ext.gfm.tables)
+    implementation(libs.commonmark.ext.gfm.strikethrough)
+    implementation(libs.commonmark.ext.autolink)
     implementation(libs.snakeyaml.engine)
 }
 
