@@ -2,51 +2,44 @@ import org.w3c.fetch.Request
 import org.w3c.fetch.Response
 import org.w3c.fetch.ResponseInit
 import kotlin.js.Promise
+import kotlin.js.json
+
+private external interface Env {
+    val BUCKET: R2Bucket
+}
+
+private external interface R2Bucket {
+    fun get(key: String): Promise<R2Object?>
+}
+
+private external interface R2Object {
+    val body: dynamic
+}
+
+private sealed class Route {
+    object RobotsTxt : Route()
+    object SitemapXml : Route()
+    object Index : Route()
+    data class Asset(val key: String) : Route()
+    data class Article(val slug: String) : Route()
+    object NotFound : Route()
+}
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 fun fetch(request: Request, env: dynamic): Promise<Response> {
     val url = js("new URL(request.url)")
     val pathname = (url.pathname as String).removePrefix("/")
-
-    // Return robots.txt and sitemap.xml directly without R2 access since crawlers request them frequently
-    if (pathname == "robots.txt") {
-        return robotsTxtResponse()
-    }
-    if (pathname == "sitemap.xml") {
-        return sitemapXmlResponse()
-    }
-
-    val key = resolveKey(pathname)
-
-    if (key == null) {
-        return notFoundResponse(env)
-    }
-
-    val contentType = contentTypeFor(key)
-    if (contentType == null) {
-        return notFoundResponse(env)
-    }
-
-    return (env.BUCKET.get(key) as Promise<dynamic>).then { obj: dynamic ->
-        if (obj == null) {
-            notFoundResponse(env)
-        } else {
-            val headers: dynamic = object {}
-            headers["content-type"] = contentType
-            headers["cache-control"] = cacheControlFor(key)
-            setSecurityHeaders(headers)
-            Promise.resolve(Response(obj.body, ResponseInit(headers = headers)))
-        }
-    }.asDynamic().unsafeCast<Promise<Response>>()
+    val route = resolveRoute(pathname)
+    return handleRoute(route, env)
 }
 
-private fun notFoundResponse(env: dynamic): Promise<Response> {
-    return (env.BUCKET.get("404.html") as Promise<dynamic>).then { obj: dynamic ->
-        val headers: dynamic = object {}
-        headers["content-type"] = "text/html; charset=utf-8"
-        headers["cache-control"] = "public, max-age=300"
-        setSecurityHeaders(headers)
+private fun notFoundHandler(env: Env): Promise<Response> {
+    val headers = buildHeaders(
+        contentType = "text/html; charset=utf-8",
+        cacheControl = "public, max-age=300"
+    )
+    return env.BUCKET.get("404.html").then { obj: R2Object? ->
         if (obj == null) {
             Response("Not Found", ResponseInit(status = 404, headers = headers))
         } else {
@@ -55,25 +48,71 @@ private fun notFoundResponse(env: dynamic): Promise<Response> {
     }
 }
 
-private fun resolveKey(pathname: String): String? {
-    if (pathname.contains("..") || pathname.contains("//")) return null
+private fun handleRoute(route: Route, env: dynamic): Promise<Response> {
+    val typedEnv = env.unsafeCast<Env>()
+    return when (route) {
+        is Route.RobotsTxt -> robotsTxtHandler()
+        is Route.SitemapXml -> sitemapXmlHandler()
+        is Route.NotFound -> notFoundHandler(typedEnv)
+        is Route.Index -> indexHandler(typedEnv)
+        is Route.Asset -> assetHandler(route.key, typedEnv)
+        is Route.Article -> articleHandler(route.slug, typedEnv)
+    }
+}
+
+private fun indexHandler(env: Env): Promise<Response> {
+    return fetchFromR2("index.html", env)
+}
+
+private fun assetHandler(key: String, env: Env): Promise<Response> {
+    return fetchFromR2(key, env)
+}
+
+private fun articleHandler(slug: String, env: Env): Promise<Response> {
+    return fetchFromR2("$slug.html", env)
+}
+
+private fun fetchFromR2(key: String, env: Env): Promise<Response> {
+    val contentType = contentTypeFor(key)
+    if (contentType == null) {
+        return notFoundHandler(env)
+    }
+    return env.BUCKET.get(key).then { obj: R2Object? ->
+        if (obj == null) {
+            notFoundHandler(env)
+        } else {
+            val headers = buildHeaders(
+                contentType = contentType,
+                cacheControl = cacheControlFor(key)
+            )
+            Promise.resolve(Response(obj.body, ResponseInit(headers = headers)))
+        }
+    }.asDynamic().unsafeCast<Promise<Response>>()
+}
+
+private fun resolveRoute(pathname: String): Route {
+    if (pathname.contains("..") || pathname.contains("//")) return Route.NotFound
 
     val decoded = try {
         js("decodeURIComponent(pathname)") as String
     } catch (e: Throwable) {
-        return null
+        return Route.NotFound
     }
-    if (decoded.contains("..") || decoded.contains("//")) return null
+    if (decoded.contains("..") || decoded.contains("//")) return Route.NotFound
 
-    if (pathname.isEmpty()) return "index.html"
-    if (pathname == "articles.json") return pathname
-    if (pathname == "feed.xml") return pathname
-    if (pathname.startsWith("assets/")) return pathname
-    if (pathname.startsWith("images/")) return pathname
-    if (pathname.startsWith("articles/") && !pathname.contains(".")) {
-        return "$pathname.html"
+    // Return robots.txt and sitemap.xml directly without R2 access since crawlers request them frequently
+    return when {
+        pathname == "robots.txt" -> Route.RobotsTxt
+        pathname == "sitemap.xml" -> Route.SitemapXml
+        pathname.isEmpty() -> Route.Index
+        pathname == "articles.json" -> Route.Asset(pathname)
+        pathname == "feed.xml" -> Route.Asset(pathname)
+        pathname.startsWith("assets/") -> Route.Asset(pathname)
+        pathname.startsWith("images/") -> Route.Asset(pathname)
+        pathname.startsWith("articles/") && !pathname.contains(".") -> Route.Article(pathname)
+        pathname.startsWith("articles/") && pathname.endsWith(".html") -> Route.Article(pathname.removeSuffix(".html"))
+        else -> Route.NotFound
     }
-    return null
 }
 
 private fun contentTypeFor(filename: String): String? {
@@ -90,20 +129,20 @@ private fun contentTypeFor(filename: String): String? {
     }
 }
 
-private fun robotsTxtResponse(): Promise<Response> {
+private fun robotsTxtHandler(): Promise<Response> {
     val body = """
         User-agent: *
         Allow: /
         Sitemap: https://mataku.com/sitemap.xml
     """.trimIndent()
-    val headers: dynamic = object {}
-    headers["content-type"] = "text/plain; charset=utf-8"
-    headers["cache-control"] = "public, max-age=86400"
-    setSecurityHeaders(headers)
+    val headers = buildHeaders(
+        contentType = "text/plain; charset=utf-8",
+        cacheControl = "public, max-age=86400"
+    )
     return Promise.resolve(Response(body, ResponseInit(headers = headers)))
 }
 
-private fun sitemapXmlResponse(): Promise<Response> {
+private fun sitemapXmlHandler(): Promise<Response> {
     val body = """
         <?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -115,18 +154,20 @@ private fun sitemapXmlResponse(): Promise<Response> {
           </url>
         </urlset>
     """.trimIndent()
-    val headers: dynamic = object {}
-    headers["content-type"] = "application/xml; charset=utf-8"
-    headers["cache-control"] = "public, max-age=86400"
-    setSecurityHeaders(headers)
+    val headers = buildHeaders(
+        contentType = "application/xml; charset=utf-8",
+        cacheControl = "public, max-age=86400"
+    )
     return Promise.resolve(Response(body, ResponseInit(headers = headers)))
 }
 
-private fun setSecurityHeaders(headers: dynamic) {
-    headers["X-Content-Type-Options"] = "nosniff"
-    headers["X-Frame-Options"] = "DENY"
-    headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-}
+private fun buildHeaders(contentType: String, cacheControl: String) = json(
+    "content-type" to contentType,
+    "cache-control" to cacheControl,
+    "X-Content-Type-Options" to "nosniff",
+    "X-Frame-Options" to "DENY",
+    "Referrer-Policy" to "strict-origin-when-cross-origin"
+)
 
 private fun cacheControlFor(filename: String): String {
     return when {
