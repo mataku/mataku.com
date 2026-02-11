@@ -1,7 +1,7 @@
 .PHONY: generate deploy new build-worker feed deploy_images deploy_aseets_local deploy_images_local
 
 generate:
-	./gradlew :generator:run
+	./gradlew :generator:run --no-daemon
 
 new:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
@@ -9,16 +9,16 @@ new:
 		echo "Example: make new my-new-article"; \
 		exit 1; \
 	fi
-	./gradlew :generator:new --args="$(filter-out $@,$(MAKECMDGOALS))"
+	./gradlew :generator:new --args="$(filter-out $@,$(MAKECMDGOALS))" --no-daemon
 
 %:
 	@:
 
 feed:
-	./gradlew :generator:feed
+	./gradlew :generator:feed --no-daemon
 
 build-worker:
-	./gradlew :worker:compileProductionExecutableKotlinJs
+	./gradlew :worker:compileProductionExecutableKotlinJs --no-daemon
 
 deploy_assets: build-worker
 	npx wrangler r2 object put mataku-blog/index.html --file=output/index.html --remote
