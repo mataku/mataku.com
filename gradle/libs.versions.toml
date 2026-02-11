@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.1.0"
+kotlin = "2.3.10"
 markdown = "0.7.3"
-snakeyaml-engine = "2.8"
+snakeyaml-engine = "3.0.1"
 
 [libraries]
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
