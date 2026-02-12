@@ -23,7 +23,6 @@ class Generator {
     private val outputDir: Path = projectRoot.resolve("output")
     private val articlesOutputDir: Path = outputDir.resolve("articles")
     private val templatePath: Path = projectRoot.resolve("templates/article.html")
-    private val indexTemplatePath: Path = projectRoot.resolve("templates/index.html")
     private val notFoundTemplatePath: Path = projectRoot.resolve("templates/404.html")
 
     private val footerHtml = """
@@ -49,7 +48,6 @@ class Generator {
         )
         val parser = Parser.builder().extensions(extensions).build()
         val renderer = HtmlRenderer.builder().extensions(extensions).build()
-        val articleMetadataList = mutableListOf<Map<String, Any>>()
 
         for (file in markdownFiles) {
             if (file.extension != "md") continue
@@ -85,24 +83,8 @@ class Generator {
             val outputFile = articlesOutputDir.resolve("$slug.html")
             outputFile.writeText(html)
             println("Generated: $outputFile")
-
-            articleMetadataList.add(
-                mapOf(
-                    "title" to (article.metadata["title"] ?: slug),
-                    "date" to formatDateForDisplay(article.metadata["date"] ?: ""),
-                    "path" to "/articles/$slug",
-                    "tags" to article.tags
-                )
-            )
         }
 
-        val sortedArticles = articleMetadataList.sortedByDescending { (it["date"] as? String) ?: "" }
-        val json = JsonWriter.buildArticlesJson(sortedArticles)
-        val jsonOutputFile = outputDir.resolve("articles.json")
-        jsonOutputFile.writeText(json)
-        println("Generated: $jsonOutputFile")
-
-        generateStaticPage(indexTemplatePath, outputDir.resolve("index.html"))
         generateStaticPage(notFoundTemplatePath, outputDir.resolve("404.html"))
     }
 
