@@ -25,7 +25,7 @@ object FeedGenerator {
         generate()
     }
 
-    private fun generate() {
+    fun generate() {
         outputDir.createDirectories()
 
         val markdownFiles = articlesDir.listDirectoryEntries("*.md")
