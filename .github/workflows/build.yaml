@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [develop]
 
+concurrency:
+  group: build-${{ github.head_ref || 'develop' }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
