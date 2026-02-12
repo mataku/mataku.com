@@ -24,6 +24,3 @@ jobs:
 
       - name: Generate articles
         run: make generate
-
-      - name: Build worker
-        run: make build-worker
