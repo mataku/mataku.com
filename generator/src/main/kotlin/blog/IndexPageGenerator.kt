@@ -1,13 +1,7 @@
 package blog
 
-import org.commonmark.ext.autolink.AutolinkExtension
-import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension
-import org.commonmark.ext.gfm.tables.TablesExtension
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import java.nio.file.Path
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.io.path.createDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
@@ -22,13 +16,6 @@ object IndexPageGenerator {
     private val articlesDir: Path = projectRoot.resolve("articles")
     private val outputDir: Path = projectRoot.resolve("output")
     private val templatePath: Path = projectRoot.resolve("templates/index.html")
-
-    private val footerHtml = """
-        <footer>
-            &copy; Takuma Homma
-            <span class="footer-credit">Made with <a href="https://kotlinlang.org" target="_blank" rel="noopener">Kotlin</a></span>
-        </footer>
-    """.trimIndent()
 
     fun generate() {
         val articles = collectArticles()
@@ -50,7 +37,7 @@ object IndexPageGenerator {
             val variables = mapOf(
                 "article_list" to articleListHtml,
                 "pagination" to paginationHtml,
-                "footer" to footerHtml
+                "footer" to SiteConfig.footerHtml
             )
 
             val html = TemplateEngine.render(templatePath, variables)
@@ -69,14 +56,6 @@ object IndexPageGenerator {
     private fun collectArticles(): List<ArticleSummary> {
         val markdownFiles = articlesDir.listDirectoryEntries("*.md")
 
-        val extensions = listOf(
-            TablesExtension.create(),
-            StrikethroughExtension.create(),
-            AutolinkExtension.create()
-        )
-        val parser = Parser.builder().extensions(extensions).build()
-        val renderer = HtmlRenderer.builder().extensions(extensions).build()
-
         return markdownFiles
             .filter { it.extension == "md" }
             .mapNotNull { file ->
@@ -89,15 +68,14 @@ object IndexPageGenerator {
 
                 val slug = file.nameWithoutExtension
 
-                val document = parser.parse(article.content)
-                val htmlBody = renderer.render(document)
-                val summary = generateSummary(htmlBody)
+                val htmlBody = MarkdownRenderer.render(article.content)
+                val summary = SummaryExtractor.extract(htmlBody)
 
-                val sortDate = LocalDate.parse(dateStr.substringBefore("T"))
+                val sortDate = LocalDate.parse(DateFormatter.toIsoDate(dateStr))
                 ArticleSummary(
                     slug = slug,
                     title = title,
-                    displayDate = formatDateForDisplay(dateStr),
+                    displayDate = DateFormatter.formatForDisplay(dateStr),
                     sortDate = sortDate,
                     tags = article.tags,
                     summary = summary
@@ -153,26 +131,6 @@ object IndexPageGenerator {
 
         sb.append("</nav>")
         return sb.toString()
-    }
-
-    private fun formatDateForDisplay(dateString: String): String {
-        if (dateString.isBlank()) return ""
-        val dateOnly = dateString.substringBefore("T")
-        return LocalDate.parse(dateOnly).format(DateTimeFormatter.ISO_LOCAL_DATE)
-    }
-
-    private fun generateSummary(htmlBody: String, maxLength: Int = 80): String {
-        val withoutHeaders = htmlBody.replace(Regex("<h[1-6][^>]*>.*?</h[1-6]>", RegexOption.DOT_MATCHES_ALL), "")
-        val withoutLinks = withoutHeaders.replace(Regex("<a[^>]*>(.*?)</a>")) { it.groupValues[1] }
-        val text = withoutLinks.replace(Regex("<[^>]+>"), "")
-            .replace(Regex("https?://[a-zA-Z0-9./?=&#_%-]+"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-        return if (text.length > maxLength) {
-            text.take(maxLength) + "..."
-        } else {
-            text
-        }
     }
 
     private fun escapeHtml(value: String): String {
