@@ -1,2 +1,2 @@
 rootProject.name = "blog"
-include("generator", "worker")
+include("generator")
