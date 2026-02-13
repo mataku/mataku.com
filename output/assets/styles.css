@@ -23,6 +23,60 @@
     --font-body: -apple-system, "Noto Sans JP", sans-serif;
     --font-mono: "JetBrains Mono", monospace;
     --content-width: 760px;
+    --transition-theme: 0.5s ease;
+}
+
+/* Dark Mode - System Preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: #222831;
+        --color-card-bg: rgba(45, 52, 64, 0.85);
+        --color-text: #ececec;
+        --color-heading: #f5f5f5;
+        --color-header: #c8d3dc;
+        --color-text-muted: #9a9a9a;
+        --color-border: #393e46;
+        --color-accent: #9b7aff;
+        --color-code-bg: #1a1d24;
+        --color-tag: #DCE775;
+        --color-code-text: #d4d4d4;
+        --color-inline-code-bg: #393e46;
+        --color-link: #9b7aff;
+    }
+}
+
+/* Dark Mode - Manual Toggle */
+[data-theme="dark"] {
+    --color-bg: #222831;
+    --color-card-bg: rgba(45, 52, 64, 0.85);
+    --color-text: #ececec;
+    --color-heading: #f5f5f5;
+    --color-header: #c8d3dc;
+    --color-text-muted: #9a9a9a;
+    --color-border: #393e46;
+    --color-accent: #9b7aff;
+    --color-code-bg: #1a1d24;
+    --color-tag: #DCE775;
+    --color-code-text: #d4d4d4;
+    --color-inline-code-bg: #393e46;
+    --color-link: #9b7aff;
+}
+
+/* Light Mode - Manual Toggle (override system preference) */
+[data-theme="light"] {
+    --color-bg: #F2EDE5;
+    --color-card-bg: rgba(255, 252, 248, 0.5);
+    --color-text: #1c1c1c;
+    --color-heading: #3a3a3a;
+    --color-header: #2c4450;
+    --color-text-muted: #6b6b6b;
+    --color-border: #e0ddd8;
+    --color-accent: #7F52FF;
+    --color-code-bg: #1e1e1e;
+    --color-code-text: #d4d4d4;
+    --color-tag: #7F52FF;
+    --color-inline-code-bg: #f0eeeb;
+    --color-link: #7F52FF;
 }
 
 html {
@@ -38,6 +92,19 @@ body {
     font-weight: 400;
     line-height: 1.9;
     letter-spacing: 0.02em;
+    transition: background-color var(--transition-theme), color var(--transition-theme);
+}
+
+.article-card-wrapper,
+.article-card,
+.index-header,
+article,
+article pre,
+article code,
+article blockquote,
+footer,
+.pagination a {
+    transition: background-color var(--transition-theme), color var(--transition-theme), border-color var(--transition-theme);
 }
 
 .container {
@@ -48,6 +115,9 @@ body {
 
 .site-header {
     padding: 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .site-header a {
@@ -291,6 +361,30 @@ footer {
 .social-icon:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
+}
+
+.theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+button.social-icon {
+    background: transparent;
+    cursor: pointer;
 }
 
 .article-list {
