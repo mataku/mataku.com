@@ -6,15 +6,11 @@ Personal blog built with Kotlin.
 
 ### Generator (Kotlin/JVM)
 
-Converts Markdown files with YAML frontmatter to HTML. Uses `org.jetbrains:markdown` for GFM parsing.
-
-### Worker (Kotlin/JS)
-
-Cloudflare Workers fetch handler compiled from Kotlin/JS. Serves static files from R2 bucket.
+Converts Markdown files with YAML frontmatter to HTML. Uses `org.commonmark:commonmark` for GFM parsing.
 
 ## Build Commands
 
 ```bash
-make generate      # Generate HTML from markdown
-make build-worker  # Compile Kotlin/JS for Workers
+make new awesome-article   # Generate articles/awesome-article.md
+make generate              # Generate HTML from markdown
 ```
