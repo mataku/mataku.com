@@ -10,18 +10,17 @@
     --color-bg: #F2EDE5;
     --color-card-bg: rgba(255, 252, 248, 0.5);
     --color-text: #1c1c1c;
-    --color-heading: #3a3a3a;
-    --color-header: #2c4450;
+    --color-heading: #2c4450;
     --color-text-muted: #6b6b6b;
+    --color-date: #838383;
     --color-border: #e0ddd8;
     --color-accent: #7F52FF;
     --color-code-bg: #1e1e1e;
     --color-code-text: #d4d4d4;
     --color-inline-code-bg: #f0eeeb;
     --color-link: #7F52FF;
-    --font-heading: "Noto Sans JP", sans-serif;
-    --font-display: "IBM Plex Sans", sans-serif;
-    --font-body: "Noto Sans JP", sans-serif;
+    --font-heading: -apple-system, "Noto Sans JP", sans-serif;
+    --font-body: -apple-system, "Noto Sans JP", sans-serif;
     --font-mono: "JetBrains Mono", monospace;
     --content-width: 760px;
 }
@@ -90,13 +89,13 @@ body {
     font-weight: 600;
     line-height: 1.5;
     letter-spacing: 0.02em;
-    color: var(--color-header);
+    color: var(--color-heading);
     margin-bottom: 1rem;
 }
 
 .article-header time {
     display: block;
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: 0.8rem;
     color: var(--color-text-muted);
     letter-spacing: 0.05em;
@@ -257,7 +256,7 @@ footer {
     font-weight: 500;
     line-height: 1.3;
     letter-spacing: -0.01em;
-    color: var(--color-header);
+    color: var(--color-heading);
     margin-bottom: 0.6rem;
 }
 
@@ -348,7 +347,7 @@ footer {
     display: block;
     font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: var(--color-text-muted);
+    color: var(--color-date);
     letter-spacing: 0.05em;
 }
 
@@ -384,7 +383,7 @@ footer {
     font-size: 0.85rem;
     color: var(--color-text-muted);
     line-height: 1.6;
-    margin-top: 0.6rem;
+    margin-top: 0.7rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
