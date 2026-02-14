@@ -37,7 +37,8 @@ object IndexPageGenerator {
             val variables = mapOf(
                 "article_list" to articleListHtml,
                 "pagination" to paginationHtml,
-                "footer" to SiteConfig.footerHtml
+                "footer" to SiteConfig.footerHtml,
+                "header_actions" to SiteConfig.headerActionsHtml
             )
 
             val html = TemplateEngine.render(templatePath, variables)

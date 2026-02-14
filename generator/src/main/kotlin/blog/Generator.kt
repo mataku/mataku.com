@@ -52,6 +52,7 @@ class Generator {
             variables["url"] = "https://mataku.com/articles/$slug"
             variables["description"] = SummaryExtractor.extract(htmlBody)
             variables["footer"] = SiteConfig.footerHtml
+            variables["header_actions"] = SiteConfig.headerActionsHtml
             variables["x_widgets_script"] = if (xEmbedResult.hasXEmbed) {
                 """<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>"""
             } else ""
@@ -66,7 +67,10 @@ class Generator {
     }
 
     private fun generateStaticPage(templatePath: Path, outputPath: Path) {
-        val variables = mapOf("footer" to SiteConfig.footerHtml)
+        val variables = mapOf(
+            "footer" to SiteConfig.footerHtml,
+            "header_actions" to SiteConfig.headerActionsHtml
+        )
         val html = TemplateEngine.render(templatePath, variables)
         outputPath.writeText(html)
         println("Generated: $outputPath")
