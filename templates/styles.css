@@ -160,7 +160,7 @@ footer,
 
 .article-header time {
     display: block;
-    font-family: var(--font-body);
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--color-text-muted);
     letter-spacing: 0.05em;
@@ -827,6 +827,7 @@ article .note::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
