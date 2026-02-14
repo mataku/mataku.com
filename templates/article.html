@@ -5,11 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} - Club Kids Never Die</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="/assets/{{css_file}}">
     <link rel="icon" href="/assets/favicon.ico">
     <meta name="theme-color" content="transparent">
@@ -27,7 +22,7 @@
     <div class="container">
         <header class="index-header">
             <a href="/">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
@@ -36,11 +31,11 @@
             {{header_actions}}
         </header>
         <div class="article-card-wrapper">
-            <header class="article-header">
+            <div class="article-header">
                 <h1>{{title}}</h1>
                 <time datetime="{{date_iso}}">{{date}}</time>
                 <div class="tags">{{tags}}</div>
-            </header>
+            </div>
             <main>
                 <article>
                     {{content}}

@@ -19,9 +19,9 @@
     --color-code-text: #d4d4d4;
     --color-inline-code-bg: #f0eeeb;
     --color-link: #7F52FF;
-    --font-heading: -apple-system, "Noto Sans JP", sans-serif;
-    --font-body: -apple-system, "Noto Sans JP", sans-serif;
-    --font-mono: "JetBrains Mono", monospace;
+    --font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", "Meiryo", sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Yu Gothic", "Meiryo", sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
     --content-width: 760px;
     --transition-theme: 0.5s ease;
 }
@@ -77,6 +77,11 @@
     --color-tag: #7F52FF;
     --color-inline-code-bg: #f0eeeb;
     --color-link: #7F52FF;
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 html {
@@ -818,6 +823,15 @@ article .note::before {
     .pagination span {
         font-size: 0.85rem;
         padding: 0.5rem 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
 
