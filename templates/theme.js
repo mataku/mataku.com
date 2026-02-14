@@ -24,9 +24,15 @@
     }
   });
 
+  function themeToggleLabel(theme) {
+    return theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     var toggle = document.getElementById('theme-toggle');
     if (!toggle) return;
+
+    toggle.setAttribute('aria-label', themeToggleLabel(getEffectiveTheme()));
 
     toggle.addEventListener('click', function() {
       var current = getEffectiveTheme();
@@ -34,6 +40,7 @@
       localStorage.setItem('theme', next);
       document.documentElement.setAttribute('data-theme', next);
       updateThemeColor(next);
+      toggle.setAttribute('aria-label', themeToggleLabel(next));
     });
   });
 })();

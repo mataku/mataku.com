@@ -117,13 +117,13 @@ object IndexPageGenerator {
         if (totalPages <= 1) return ""
 
         val sb = StringBuilder()
-        sb.append("""<nav class="pagination">""")
+        sb.append("""<nav class="pagination" aria-label="Pagination">""")
 
         if (currentPage > 1) {
             val prevUrl = if (currentPage == 2) "/" else "/page/${currentPage - 1}/"
             sb.append("""<a href="$prevUrl" class="pagination-prev">Prev</a>""")
         } else {
-            sb.append("""<span class="pagination-prev disabled">Prev</span>""")
+            sb.append("""<span class="pagination-prev disabled" aria-disabled="true">Prev</span>""")
         }
 
         sb.append("""<span class="pagination-info">$currentPage / $totalPages</span>""")
@@ -131,7 +131,7 @@ object IndexPageGenerator {
         if (currentPage < totalPages) {
             sb.append("""<a href="/page/${currentPage + 1}/" class="pagination-next">Next</a>""")
         } else {
-            sb.append("""<span class="pagination-next disabled">Next</span>""")
+            sb.append("""<span class="pagination-next disabled" aria-disabled="true">Next</span>""")
         }
 
         sb.append("</nav>")
