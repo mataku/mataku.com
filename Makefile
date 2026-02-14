@@ -1,4 +1,4 @@
-.PHONY: generate deploy new feed
+.PHONY: generate deploy new feed build-worker
 
 generate:
 	./gradlew :generator:run --no-daemon
@@ -14,8 +14,11 @@ new:
 %:
 	@:
 
+build-worker:
+	./gradlew :worker:compileProductionExecutableKotlinJs --no-daemon
+
 feed:
 	./gradlew :generator:feed --no-daemon
 
-deploy: generate
-	npx wrangler pages deploy
+deploy: build-worker generate
+	npx wrangler deploy
