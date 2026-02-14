@@ -24,6 +24,8 @@ object IndexPageGenerator {
             return
         }
 
+        val cssFile = AssetHasher.processStylesCss(projectRoot)
+        val themeJsFile = AssetHasher.processThemeJs(projectRoot)
         val totalPages = (articles.size + ARTICLES_PER_PAGE - 1) / ARTICLES_PER_PAGE
 
         for (pageNum in 1..totalPages) {
@@ -38,7 +40,9 @@ object IndexPageGenerator {
                 "article_list" to articleListHtml,
                 "pagination" to paginationHtml,
                 "footer" to SiteConfig.footerHtml,
-                "header_actions" to SiteConfig.headerActionsHtml
+                "header_actions" to SiteConfig.headerActionsHtml,
+                "css_file" to cssFile,
+                "theme_js_file" to themeJsFile
             )
 
             val html = TemplateEngine.render(templatePath, variables)

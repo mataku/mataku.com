@@ -5,6 +5,8 @@ build/
 !/output/articles.js
 !/output/styles.css
 !/output/assets/
+output/assets/styles.*.css
+output/assets/theme.*.js
 !/output/images/
 
 .env

@@ -19,6 +19,9 @@ class Generator {
     fun run() {
         articlesOutputDir.createDirectories()
 
+        val cssFile = AssetHasher.processStylesCss(projectRoot)
+        val themeJsFile = AssetHasher.processThemeJs(projectRoot)
+
         val markdownFiles = articlesDir.listDirectoryEntries("*.md")
         if (markdownFiles.isEmpty()) {
             println("No markdown files found in $articlesDir")
@@ -53,6 +56,8 @@ class Generator {
             variables["description"] = SummaryExtractor.extract(htmlBody)
             variables["footer"] = SiteConfig.footerHtml
             variables["header_actions"] = SiteConfig.headerActionsHtml
+            variables["css_file"] = cssFile
+            variables["theme_js_file"] = themeJsFile
             variables["x_widgets_script"] = if (xEmbedResult.hasXEmbed) {
                 """<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>"""
             } else ""
@@ -63,13 +68,15 @@ class Generator {
             println("Generated: $outputFile")
         }
 
-        generateStaticPage(notFoundTemplatePath, outputDir.resolve("404.html"))
+        generateStaticPage(notFoundTemplatePath, outputDir.resolve("404.html"), cssFile, themeJsFile)
     }
 
-    private fun generateStaticPage(templatePath: Path, outputPath: Path) {
+    private fun generateStaticPage(templatePath: Path, outputPath: Path, cssFile: String, themeJsFile: String) {
         val variables = mapOf(
             "footer" to SiteConfig.footerHtml,
-            "header_actions" to SiteConfig.headerActionsHtml
+            "header_actions" to SiteConfig.headerActionsHtml,
+            "css_file" to cssFile,
+            "theme_js_file" to themeJsFile
         )
         val html = TemplateEngine.render(templatePath, variables)
         outputPath.writeText(html)
