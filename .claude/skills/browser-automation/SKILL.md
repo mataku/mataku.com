@@ -9,7 +9,9 @@ allowed-tools:
 
 ## Browser Automation
 
-Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
+Use this skill to automate browser actions for previewing and testing generated HTML content.
+
+Run `agent-browser --help` for all commands.
 
 Basic usage:
 
