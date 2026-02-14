@@ -26,16 +26,17 @@ private sealed class Route {
 fun fetch(request: Request, env: dynamic): Promise<Response> {
     val url = js("new URL(request.url)")
     val pathname = (url.pathname as String).removePrefix("/")
+    val origin = url.origin as String
     val route = resolveRoute(pathname)
-    return handleRoute(route, env)
+    return handleRoute(route, env, origin)
 }
 
-private fun notFoundHandler(env: Env): Promise<Response> {
+private fun notFoundHandler(env: Env, origin: String): Promise<Response> {
     val headers = buildHeaders(
         contentType = "text/html; charset=utf-8",
         cacheControl = "public, max-age=300"
     )
-    return env.ASSETS.fetch(Request("/404.html")).then { response: Response ->
+    return env.ASSETS.fetch(Request("$origin/404.html")).then { response: Response ->
         if (response.ok) {
             Response(response.body, ResponseInit(status = 404, headers = headers))
         } else {
@@ -44,36 +45,36 @@ private fun notFoundHandler(env: Env): Promise<Response> {
     }
 }
 
-private fun handleRoute(route: Route, env: dynamic): Promise<Response> {
+private fun handleRoute(route: Route, env: dynamic, origin: String): Promise<Response> {
     val typedEnv = env.unsafeCast<Env>()
     return when (route) {
         is Route.RobotsTxt -> robotsTxtHandler()
         is Route.SitemapXml -> sitemapXmlHandler()
-        is Route.NotFound -> notFoundHandler(typedEnv)
-        is Route.Index -> indexHandler(typedEnv)
-        is Route.Asset -> assetHandler(route.key, typedEnv)
-        is Route.Article -> articleHandler(route.slug, typedEnv)
+        is Route.NotFound -> notFoundHandler(typedEnv, origin)
+        is Route.Index -> indexHandler(typedEnv, origin)
+        is Route.Asset -> assetHandler(route.key, typedEnv, origin)
+        is Route.Article -> articleHandler(route.slug, typedEnv, origin)
     }
 }
 
-private fun indexHandler(env: Env): Promise<Response> {
-    return fetchFromAssets("index.html", env)
+private fun indexHandler(env: Env, origin: String): Promise<Response> {
+    return fetchFromAssets("index.html", env, origin)
 }
 
-private fun assetHandler(key: String, env: Env): Promise<Response> {
-    return fetchFromAssets(key, env)
+private fun assetHandler(key: String, env: Env, origin: String): Promise<Response> {
+    return fetchFromAssets(key, env, origin)
 }
 
-private fun articleHandler(slug: String, env: Env): Promise<Response> {
-    return fetchFromAssets("$slug.html", env)
+private fun articleHandler(slug: String, env: Env, origin: String): Promise<Response> {
+    return fetchFromAssets("$slug.html", env, origin)
 }
 
-private fun fetchFromAssets(key: String, env: Env): Promise<Response> {
+private fun fetchFromAssets(key: String, env: Env, origin: String): Promise<Response> {
     val contentType = contentTypeFor(key)
     if (contentType == null) {
-        return notFoundHandler(env)
+        return notFoundHandler(env, origin)
     }
-    return env.ASSETS.fetch(Request("https://dummy/$key")).then { response: Response ->
+    return env.ASSETS.fetch(Request("$origin/$key")).then { response: Response ->
         if (response.ok) {
             val headers = buildHeaders(
                 contentType = contentType,
@@ -81,7 +82,7 @@ private fun fetchFromAssets(key: String, env: Env): Promise<Response> {
             )
             Promise.resolve(Response(response.body, ResponseInit(headers = headers)))
         } else {
-            notFoundHandler(env)
+            notFoundHandler(env, origin)
         }
     }.asDynamic().unsafeCast<Promise<Response>>()
 }
@@ -101,7 +102,6 @@ private fun resolveRoute(pathname: String): Route {
         pathname == "robots.txt" -> Route.RobotsTxt
         pathname == "sitemap.xml" -> Route.SitemapXml
         pathname.isEmpty() -> Route.Index
-        pathname == "articles.json" -> Route.Asset(pathname)
         pathname == "feed.xml" -> Route.Asset(pathname)
         pathname.startsWith("assets/") -> Route.Asset(pathname)
         pathname.startsWith("images/") -> Route.Asset(pathname)
@@ -116,7 +116,6 @@ private fun contentTypeFor(filename: String): String? {
         filename.endsWith(".html") -> "text/html; charset=utf-8"
         filename.endsWith(".css") -> "text/css; charset=utf-8"
         filename.endsWith(".js") -> "application/javascript; charset=utf-8"
-        filename.endsWith(".json") -> "application/json; charset=utf-8"
         filename.endsWith(".gif") -> "image/gif"
         filename.endsWith(".png") -> "image/png"
         filename.endsWith(".ico") -> "image/x-icon"
