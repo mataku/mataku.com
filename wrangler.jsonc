@@ -1,0 +1,13 @@
+{
+  "name": "mataku-com",
+  "main": "worker/entry.js",
+  "compatibility_date": "2026-02-05",
+  "assets": {
+    "directory": "./output/",
+    "run_worker_first": false,
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

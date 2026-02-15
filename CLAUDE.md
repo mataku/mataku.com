@@ -18,13 +18,19 @@ make new my-article
 # Generate RSS feed (feed.xml)
 make feed
 
-# Deploy to Cloudflare Pages (runs generate first)
+# Build worker (Kotlin/JS → JS)
+make build-worker
+
+# Local development server (wrangler dev)
+make serve
+
+# Deploy to Cloudflare Workers (builds worker + generates articles first)
 make deploy
 ```
 
 ## Architecture
 
-Gradle project (Kotlin) with a single generator module, deployed to Cloudflare Pages.
+Gradle multi-module project (Kotlin) with `generator` and `worker` modules, deployed to Cloudflare Workers + Static Assets.
 
 ### Generator Module (Kotlin/JVM) — Static Site Generator
 
@@ -39,21 +45,29 @@ Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `ou
 - `FrontmatterParser`: Parses `---`-delimited YAML frontmatter with SnakeYAML Engine, returns `Article(metadata, content)`
 - `JsonWriter`: Manually builds JSON strings without external libraries (RFC 8259 escape handling)
 
-### Cloudflare Pages
+### Worker Module (Kotlin/JS) — Cloudflare Worker
 
-Static files in `output/` are deployed to Cloudflare Pages via `wrangler pages deploy`.
+Kotlin/JS module compiled to JavaScript that runs as a Cloudflare Worker. Handles routing, response headers (Content-Type, Cache-Control, security headers), and serves static assets via the ASSETS binding.
 
-- `wrangler.toml`: Pages project configuration (project name: `mataku-com`, output dir: `output/`)
+- `worker.kt`: Route resolution, asset fetching from Static Assets, robots.txt/sitemap.xml generation, 404 handling
+- `entry.js`: JS entry point that bridges wrangler to the compiled Kotlin/JS (`blog-worker.js`)
+- `build.gradle.kts`: Kotlin/JS configuration targeting Node.js
+
+### Cloudflare Workers + Static Assets
+
+Deployed via `wrangler deploy`. The Worker handles all incoming requests, resolving routes and fetching static files from `output/` via the ASSETS binding (`run_worker_first: false`).
+
+- `wrangler.jsonc`: Workers project configuration (project name: `mataku-com`, entry: `worker/entry.js`, assets dir: `output/`)
 
 ## Key Directories
 
 - `articles/` — Markdown article sources (frontmatter: title, date)
 - `templates/` — Templates (`article.html`, `index.html`, `article.md` for new articles)
 - `output/` — Generated output (HTML, CSS, articles.json, feed.xml). `styles.css` is manually maintained
+- `worker/` — Cloudflare Worker source (Kotlin/JS)
 
 ## GitHub Actions Workflows
 
 - `deploy.yaml` — Deploy to production on push to develop branch
-- `preview.yaml` — Deploy preview environment on pull request
-- `cleanup_preview.yaml` — Delete preview environment when PR is closed
-- `build.yaml` — Build verification on push/PR to develop
+- `preview.yaml` — Preview deployment on pull request (uses `wrangler versions upload`)
+- `cleanup_caches.yaml` — Monthly cleanup of GitHub Actions caches
