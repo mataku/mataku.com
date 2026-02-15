@@ -1,7 +1,10 @@
-.PHONY: generate deploy new feed build-worker
+.PHONY: generate dev deploy new feed build-worker serve
 
 generate:
 	./gradlew :generator:run --no-daemon
+
+dev:
+	DEV=1 ./gradlew :generator:run --no-daemon -q
 
 new:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
@@ -19,6 +22,9 @@ build-worker:
 
 feed:
 	./gradlew :generator:feed --no-daemon
+
+serve:
+	npx wrangler dev
 
 deploy: build-worker generate
 	npx wrangler deploy

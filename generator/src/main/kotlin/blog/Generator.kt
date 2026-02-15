@@ -2,7 +2,9 @@ package blog
 
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 import kotlin.io.path.extension
+import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
@@ -22,7 +24,24 @@ class Generator {
         val cssFile = AssetHasher.processStylesCss(projectRoot)
         val themeJsFile = AssetHasher.processThemeJs(projectRoot)
 
+        val isDev = System.getenv("DEV") == "1"
+        var hasNewArticles = false
+
         val markdownFiles = articlesDir.listDirectoryEntries("*.md")
+            .let { files ->
+                if (isDev) {
+                    files.filter { file ->
+                        val outputFile = articlesOutputDir.resolve("${file.nameWithoutExtension}.html")
+                        val isNew = !outputFile.exists()
+                        if (isNew) hasNewArticles = true
+                        isNew || file.getLastModifiedTime() > outputFile.getLastModifiedTime()
+                    }.also { filtered ->
+                        println("DEV mode: ${filtered.size}/${files.size} articles to build")
+                    }
+                } else {
+                    files
+                }
+            }
         if (markdownFiles.isEmpty()) {
             println("No markdown files found in $articlesDir")
             return
@@ -68,7 +87,16 @@ class Generator {
             println("Generated: $outputFile")
         }
 
-        generateStaticPage(notFoundTemplatePath, outputDir.resolve("404.html"), cssFile, themeJsFile)
+        val notFoundOutputPath = outputDir.resolve("404.html")
+        if (!isDev || !notFoundOutputPath.exists() || notFoundTemplatePath.getLastModifiedTime() > notFoundOutputPath.getLastModifiedTime()) {
+            generateStaticPage(notFoundTemplatePath, notFoundOutputPath, cssFile, themeJsFile)
+        }
+
+        if (!isDev || hasNewArticles) {
+            IndexPageGenerator.generate()
+            FeedGenerator.generate()
+            SitemapGenerator.generate()
+        }
     }
 
     private fun generateStaticPage(templatePath: Path, outputPath: Path, cssFile: String, themeJsFile: String) {
