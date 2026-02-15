@@ -12,7 +12,7 @@ https://issuetracker.google.com/issues/123857941
 
 ちょい前に Issue も上がってるようだけど、いまいち不具合なのかそういうもんなのかというのが判断できてない (不具合な感じがするので閉じられていない と勝手に思っている) のでこちら側で対策せざるを得なかった。
 
-** 1. Intent に packageName と className を明示的に付与する **
+**1. Intent に packageName と className を明示的に付与する**
 
 ```kotlin
 intent.setPackage("com.mataku.amazingapp")
@@ -24,11 +24,11 @@ intent.setClassName(
 
 明示的に付与すると正常に画面遷移するのを確認した。ただ将来的に画面が追加されることを踏まえると、ホワイトリスト方式で URL を管理する必要があるし、DeepLink 用にあれこれ頑張らないといけないのでつらい。
 
-** 2. Universal APK にする **
+**2. Universal APK にする**
 
 Dynamic Feature Module や Android App Bundle の恩恵を受けられないがこの問題は回避できる。この事象を年末に遭遇していたのもあり一旦こちらの方法で対処し、1 で頑張るというようにした。ただ、Android App Bundle にできないというのはデメリットが多すぎるので恒久対応にはできない。
 
-** 3. Android Gradle Plugin のアップデートを待つ **
+**3. Android Gradle Plugin のアップデートを待つ**
 
 うーんという感じではあるし、本当に関係しているか分からないので何とも言えない..
 
