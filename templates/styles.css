@@ -826,15 +826,14 @@ article .note::before {
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-
+/* @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
     }
-}
+} */
 
 /* Prism.js Syntax Highlighting (VS Code Dark+ theme) */
 .token.comment,
