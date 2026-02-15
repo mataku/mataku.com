@@ -74,7 +74,7 @@
     --color-accent: #7F52FF;
     --color-code-bg: #1e1e1e;
     --color-code-text: #d4d4d4;
-    --color-tag: #7F52FF;
+    --color-tag: #827717;
     --color-inline-code-bg: #f0eeeb;
     --color-link: #7F52FF;
 }
@@ -531,9 +531,9 @@ button.social-icon {
     padding: 0.25rem 0.75rem;
     font-family: var(--font-body);
     font-size: 0.75rem;
-    color: var(--color-accent);
+    color: var(--color-tag);
     /* background: rgba(127, 82, 255, 0.08); */
-    border: 1px solid rgba(127, 82, 255, 0.2);
+    border: 1px solid color-mix(in srgb, var(--color-date) 20%, transparent);
     border-radius: 9999px;
     letter-spacing: 0.02em;
 }
