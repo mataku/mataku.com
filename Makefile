@@ -4,7 +4,7 @@ generate:
 	./gradlew :generator:run --no-daemon
 
 dev:
-	DEV=1 ./gradlew :generator:run --no-daemon -q
+	DEV=1 ./gradlew :generator:run -q
 
 new:
 	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
@@ -19,9 +19,6 @@ new:
 
 build-worker:
 	./gradlew :worker:compileProductionExecutableKotlinJs --no-daemon
-
-feed:
-	./gradlew :generator:feed --no-daemon
 
 serve:
 	npx wrangler dev
