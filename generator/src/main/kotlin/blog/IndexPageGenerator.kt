@@ -26,6 +26,7 @@ object IndexPageGenerator {
 
         val cssFile = AssetHasher.processStylesCss(projectRoot)
         val themeJsFile = AssetHasher.processThemeJs(projectRoot)
+        val template = templatePath.readText()
         val totalPages = (articles.size + ARTICLES_PER_PAGE - 1) / ARTICLES_PER_PAGE
 
         for (pageNum in 1..totalPages) {
@@ -45,7 +46,7 @@ object IndexPageGenerator {
                 "theme_js_file" to themeJsFile
             )
 
-            val html = TemplateEngine.render(templatePath, variables)
+            val html = TemplateEngine.render(template, variables)
 
             val outputPath = if (pageNum == 1) {
                 outputDir.resolve("index.html")

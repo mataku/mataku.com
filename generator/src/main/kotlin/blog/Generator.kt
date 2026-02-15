@@ -23,6 +23,7 @@ class Generator {
 
         val cssFile = AssetHasher.processStylesCss(projectRoot)
         val themeJsFile = AssetHasher.processThemeJs(projectRoot)
+        val articleTemplate = templatePath.readText()
 
         val isDev = System.getenv("DEV") == "1"
         var hasNewArticles = false
@@ -81,7 +82,7 @@ class Generator {
                 """<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>"""
             } else ""
 
-            val html = TemplateEngine.render(templatePath, variables)
+            val html = TemplateEngine.render(articleTemplate, variables)
             val outputFile = articlesOutputDir.resolve("$slug.html")
             outputFile.writeText(html)
             println("Generated: $outputFile")
@@ -106,7 +107,7 @@ class Generator {
             "css_file" to cssFile,
             "theme_js_file" to themeJsFile
         )
-        val html = TemplateEngine.render(templatePath, variables)
+        val html = TemplateEngine.render(templatePath.readText(), variables)
         outputPath.writeText(html)
         println("Generated: $outputPath")
     }

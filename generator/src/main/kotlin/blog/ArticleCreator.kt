@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.exists
+import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 object ArticleCreator {
@@ -31,7 +32,7 @@ object ArticleCreator {
         val today = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))
         val variables = mapOf("date" to today)
 
-        val content = TemplateEngine.render(templatePath, variables)
+        val content = TemplateEngine.render(templatePath.readText(), variables)
         outputPath.writeText(content)
 
         println("Created: $outputPath")
