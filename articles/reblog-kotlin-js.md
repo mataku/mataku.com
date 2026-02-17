@@ -1,6 +1,6 @@
 ---
 title: ブログを作り直した
-date: 2026-02-16T12:24:42+09:00
+date: 2026-02-17T19:24:42+09:00
 tags:
   - Kotlin
   - Cloudflare Workers
@@ -21,7 +21,7 @@ https://github.com/mataku/mataku.com/tree/7b12cc631f45a38fc479a24cc6b1abf097135a
 
 省力化しつつも新しい刺激がある構成を目指し、Cloudflare Workers の Fetch Handler を Kotlin/JS で生成し、path に応じて Workers の assets 機能を使ってコンテンツを返すようにした。
 
-Cloudflare 公式の https://github.com/cloudflare/kotlin-worker-hello-world を渡して Claude Code に作ってもらった。若干古いので multiplatform plugin を適用するマイグレーションさえすれば問題なし。
+Cloudflare 公式の [cloudflare/kotlin-worker-hello-world](https://github.com/cloudflare/kotlin-worker-hello-world) を渡して Claude Code に作ってもらった。若干古いので multiplatform plugin を適用するマイグレーションさえすれば問題なし。
 
 https://github.com/mataku/mataku.com/blob/7b12cc631f45a38fc479a24cc6b1abf097135ab2/worker/src/jsMain/kotlin/worker.kt
 
