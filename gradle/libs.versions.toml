@@ -2,6 +2,7 @@
 kotlin = "2.3.10"
 commonmark = "0.27.1"
 snakeyaml-engine = "3.0.1"
+kotlinx-browser = "0.3"
 
 [libraries]
 commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
@@ -9,6 +10,7 @@ commonmark-ext-gfm-tables = { module = "org.commonmark:commonmark-ext-gfm-tables
 commonmark-ext-gfm-strikethrough = { module = "org.commonmark:commonmark-ext-gfm-strikethrough", version.ref = "commonmark" }
 commonmark-ext-autolink = { module = "org.commonmark:commonmark-ext-autolink", version.ref = "commonmark" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml-engine" }
+kotlinx-browser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version.ref = "kotlinx-browser" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

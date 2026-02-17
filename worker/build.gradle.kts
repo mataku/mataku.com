@@ -22,19 +22,32 @@ kotlin {
                     val fileName = moduleName.map { "$it.uninstantiated.mjs" }
                     val mjsFile = linkTask.flatMap { it.destinationDirectory.file(fileName.get()) }
 
+                    // Patch the generated .uninstantiated.mjs for Cloudflare Workers compatibility.
+                    // The Kotlin/Wasm compiler generates environment-specific WASM instantiation code
+                    // (Node.js, Deno, browser, etc.), but does not support Cloudflare Workers natively.
+                    // These replacements make the generated code runnable on Cloudflare Workers.
+                    // See: https://youtrack.jetbrains.com/issue/KT-65796
+                    //      https://youtrack.jetbrains.com/issue/KT-73159
                     doLast {
                         val module = moduleName.get()
                         val file = mjsFile.get().asFile
                         val text = file.readText()
                         val newText = text
+                            // Remove the "Supported JS engine not detected" guard since
+                            // Cloudflare Workers is not recognized as a known environment.
                             .replace(
                                 "if (!isNodeJs && !isDeno && !isStandaloneJsVM && !isBrowser) {\n      throw \"Supported JS engine not detected\";\n    }",
                                 ""
                             )
+                            // Remove the isNodeJs block to avoid importing 'node:module',
+                            // which causes a wrangler bundling warning.
                             .replace(
                                 Regex("""if \(isNodeJs\) \{.+?\n      \}""", RegexOption.DOT_MATCHES_ALL),
                                 ""
                             )
+                            // Insert Cloudflare Workers WASM instantiation before the isBrowser branch.
+                            // Cloudflare Workers defines `self`, making isBrowser true, so we use
+                            // `else if` to skip the browser path when the Cloudflare Workers path is taken.
                             .replace(
                                 "if (isBrowser) {",
                                 """
@@ -57,7 +70,7 @@ kotlin {
     sourceSets {
         wasmJsMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.3")
+                implementation(libs.kotlinx.browser)
             }
         }
     }
