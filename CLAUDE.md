@@ -9,16 +9,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Run Commands
 
 ```bash
-# Generate article HTML + articles.json + index.html → output/
+# Generate article HTML + articles.json + index.html + feed.xml + sitemap.xml → output/
 make generate
+
+# Generate only changed articles (DEV mode)
+make dev
 
 # Create a new article markdown file
 make new my-article
 
-# Generate RSS feed (feed.xml)
-make feed
-
-# Build worker (Kotlin/JS → JS)
+# Build worker (Kotlin/Wasm → Wasm)
 make build-worker
 
 # Local development server (wrangler dev)
@@ -36,35 +36,39 @@ Gradle multi-module project (Kotlin) with `generator` and `worker` modules, depl
 
 Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `output/`.
 
-**Pipeline:** `FrontmatterParser.parse()` → convert markdown body to HTML with `org.commonmark` → replace `{{key}}` placeholders with `TemplateEngine.render()` → write to `output/`
+**Pipeline:** `FrontmatterParser.parse()` → `MarkdownRenderer` (commonmark) → transformers (`ImageCaptionTransformer`, `XEmbedTransformer`, `GistEmbedTransformer`) → `TemplateEngine.render()` (`{{key}}` replacement) → write to `output/`
 
-- `Generator`: Generates HTML for all articles, produces `articles.json` (metadata JSON), and copies `templates/index.html` to output
+- `Generator`: Orchestrates HTML generation for all articles, index pages, feed, and sitemap
+- `IndexPageGenerator`: Generates paginated index pages (20 articles/page)
+- `FeedGenerator`: Generates Atom RSS feed (`feed.xml`)
+- `SitemapGenerator`: Generates XML sitemap (`sitemap.xml`)
 - `ArticleCreator`: Creates new article markdown files from `templates/article.md` with current date
-- `FeedGenerator`: Generates RSS feed (feed.xml)
 - `TemplateEngine`: Regex-based `{{key}}` placeholder replacement
-- `FrontmatterParser`: Parses `---`-delimited YAML frontmatter with SnakeYAML Engine, returns `Article(metadata, content)`
+- `FrontmatterParser`: Parses `---`-delimited YAML frontmatter with SnakeYAML Engine, returns `Article(metadata, content, tags)`
+- `AssetHasher`: MD5-hashes CSS/JS files for cache busting (`styles.<hash>.css`, `theme.<hash>.js`)
 - `JsonWriter`: Manually builds JSON strings without external libraries (RFC 8259 escape handling)
 
-### Worker Module (Kotlin/JS) — Cloudflare Worker
+### Worker Module (Kotlin/Wasm) — Cloudflare Worker
 
-Kotlin/JS module compiled to JavaScript that runs as a Cloudflare Worker. Handles routing, response headers (Content-Type, Cache-Control, security headers), and serves static assets via the ASSETS binding.
+Kotlin/Wasm module compiled to WebAssembly that runs as a Cloudflare Worker. Handles routing, response headers (Content-Type, Cache-Control, security headers), and serves static assets via the ASSETS binding.
 
-- `worker.kt`: Route resolution, asset fetching from Static Assets, robots.txt/sitemap.xml generation, 404 handling
-- `entry.js`: JS entry point that bridges wrangler to the compiled Kotlin/JS (`blog-worker.js`)
-- `build.gradle.kts`: Kotlin/JS configuration targeting Node.js
+- `worker.kt` (`src/wasmJsMain/kotlin/`): Route resolution (sealed class `Route`), asset fetching, robots.txt/sitemap.xml generation, 404 handling. Only GET requests are allowed.
+- `entry.js`: JS entry point that bridges wrangler to the compiled Kotlin/Wasm (`blog-worker.mjs`)
+- `build.gradle.kts`: Kotlin/Wasm configuration with Cloudflare Workers compatibility patches (removes Node.js/Deno detection, injects Cloudflare-specific Wasm instantiation)
 
 ### Cloudflare Workers + Static Assets
 
-Deployed via `wrangler deploy`. The Worker handles all incoming requests, resolving routes and fetching static files from `output/` via the ASSETS binding (`run_worker_first: false`).
+Deployed via `wrangler deploy`. Static assets are served directly when matched (`run_worker_first: false`); the Worker handles routing and headers for everything else.
 
 - `wrangler.jsonc`: Workers project configuration (project name: `mataku-com`, entry: `worker/entry.js`, assets dir: `output/`)
 
 ## Key Directories
 
-- `articles/` — Markdown article sources (frontmatter: title, date)
-- `templates/` — Templates (`article.html`, `index.html`, `article.md` for new articles)
-- `output/` — Generated output (HTML, CSS, articles.json, feed.xml). `styles.css` is manually maintained
-- `worker/` — Cloudflare Worker source (Kotlin/JS)
+- `articles/` — Markdown article sources (frontmatter: title, date, tags)
+- `templates/` — HTML templates (`article.html`, `index.html`, `404.html`), `article.md` for new articles, `styles.css` and `theme.js` (manually maintained)
+- `output/` — Generated output (auto-generated, do not edit)
+- `worker/` — Cloudflare Worker source (Kotlin/Wasm)
+- `generator/` — Static site generator source (Kotlin/JVM)
 
 ## GitHub Actions Workflows
 

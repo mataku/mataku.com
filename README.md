@@ -8,9 +8,9 @@ Personal blog built with Kotlin.
 
 Converts Markdown files with YAML frontmatter to HTML. Uses `org.commonmark:commonmark` for GFM parsing.
 
-### Worker (Kotlin/JS)
+### Worker (Kotlin/Wasm)
 
-Cloudflare Worker implemented in Kotlin/JS. Serves content from Worker Assets.
+Cloudflare Worker implemented in Kotlin/Wasm. Serves content from Worker Assets. This module serves as a technical experiment to explore Kotlin/Wasm capabilities.
 
 ## Build Commands
 
