@@ -44,6 +44,15 @@ private fun buildHeadersJs(
 
 @JsExport
 fun fetch(request: Request, env: JsAny): Promise<Response> {
+    if (request.method != "GET") {
+        val headers = buildHeadersJs(
+            contentType = "text/plain; charset=utf-8",
+            cacheControl = "no-store"
+        )
+        return Promise.resolve(
+            Response("Not Found".toJsString(), ResponseInit(status = 404, headers = headers))
+        )
+    }
     val url = newURL(request.url)
     val pathname = getPathname(url).toString().removePrefix("/")
     val origin = getOrigin(url).toString()
