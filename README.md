@@ -10,7 +10,7 @@ Converts Markdown files with YAML frontmatter to HTML. Uses `org.commonmark:comm
 
 ### Worker (Kotlin/Wasm)
 
-Cloudflare Worker implemented in Kotlin/Wasm. Serves content from Worker Assets. This module serves as a technical experiment to explore Kotlin/Wasm capabilities.
+Cloudflare Worker script implemented in Kotlin/Wasm. Serves content from Worker Assets. This module is a technical experiment to explore Kotlin/Wasm capabilities.
 
 ## Build Commands
 
