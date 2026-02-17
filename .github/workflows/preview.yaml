@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      GRADLE_OPTS: -Dorg.gradle.configuration-cache=false
+      GRADLE_OPTS: -Dorg.gradle.configuration-cache=false -Dorg.gradle.jvmargs=-Xmx1g -Dorg.gradle.daemon=false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
