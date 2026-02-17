@@ -1,14 +1,16 @@
+@file:OptIn(ExperimentalJsExport::class, ExperimentalWasmJsInterop::class)
+
 import org.w3c.fetch.Request
 import org.w3c.fetch.Response
 import org.w3c.fetch.ResponseInit
+import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.Promise
-import kotlin.js.json
 
-private external interface Env {
+private external interface Env : JsAny {
     val ASSETS: AssetsFetcher
 }
 
-private external interface AssetsFetcher {
+private external interface AssetsFetcher : JsAny {
     fun fetch(request: Request): Promise<Response>
 }
 
@@ -21,31 +23,58 @@ private sealed class Route {
     object NotFound : Route()
 }
 
-@OptIn(ExperimentalJsExport::class)
+private fun newURL(url: String): JsAny = js("new URL(url)")
+
+private fun getPathname(url: JsAny): JsString = js("url.pathname")
+
+private fun getOrigin(url: JsAny): JsString = js("url.origin")
+
+private fun decodeURIComponent(value: String): JsString = js("decodeURIComponent(value)")
+
+private fun buildHeadersJs(
+    contentType: String,
+    cacheControl: String
+): JsAny = js("""({
+    "content-type": contentType,
+    "cache-control": cacheControl,
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+})""")
+
 @JsExport
-fun fetch(request: Request, env: dynamic): Promise<Response> {
-    val url = js("new URL(request.url)")
-    val pathname = (url.pathname as String).removePrefix("/")
-    val origin = url.origin as String
+fun fetch(request: Request, env: JsAny): Promise<Response> {
+    if (request.method != "GET") {
+        val headers = buildHeadersJs(
+            contentType = "text/plain; charset=utf-8",
+            cacheControl = "no-store"
+        )
+        return Promise.resolve(
+            Response("Not Found".toJsString(), ResponseInit(status = 404, headers = headers))
+        )
+    }
+    val url = newURL(request.url)
+    val pathname = getPathname(url).toString().removePrefix("/")
+    val origin = getOrigin(url).toString()
     val route = resolveRoute(pathname)
     return handleRoute(route, env, origin)
 }
 
 private fun notFoundHandler(env: Env, origin: String): Promise<Response> {
-    val headers = buildHeaders(
+    val headers = buildHeadersJs(
         contentType = "text/html; charset=utf-8",
         cacheControl = "public, max-age=300"
     )
-    return env.ASSETS.fetch(Request("$origin/404.html")).then { response: Response ->
+    return env.ASSETS.fetch(Request("$origin/404.html".toJsString())).then { response: Response ->
         if (response.ok) {
             Response(response.body, ResponseInit(status = 404, headers = headers))
         } else {
-            Response("Not Found", ResponseInit(status = 404, headers = headers))
+            Response("Not Found".toJsString(), ResponseInit(status = 404, headers = headers))
         }
-    }
+    }.unsafeCast<Promise<Response>>()
 }
 
-private fun handleRoute(route: Route, env: dynamic, origin: String): Promise<Response> {
+private fun handleRoute(route: Route, env: JsAny, origin: String): Promise<Response> {
     val typedEnv = env.unsafeCast<Env>()
     return when (route) {
         is Route.RobotsTxt -> robotsTxtHandler()
@@ -74,9 +103,9 @@ private fun fetchFromAssets(key: String, env: Env, origin: String): Promise<Resp
     if (contentType == null) {
         return notFoundHandler(env, origin)
     }
-    return env.ASSETS.fetch(Request("$origin/$key")).then { response: Response ->
+    return env.ASSETS.fetch(Request("$origin/$key".toJsString())).then { response: Response ->
         if (response.ok) {
-            val headers = buildHeaders(
+            val headers = buildHeadersJs(
                 contentType = contentType,
                 cacheControl = cacheControlFor(key)
             )
@@ -84,14 +113,14 @@ private fun fetchFromAssets(key: String, env: Env, origin: String): Promise<Resp
         } else {
             notFoundHandler(env, origin)
         }
-    }.asDynamic().unsafeCast<Promise<Response>>()
+    }.unsafeCast<Promise<Response>>()
 }
 
 private fun resolveRoute(pathname: String): Route {
     if (pathname.contains("..") || pathname.contains("//")) return Route.NotFound
 
     val decoded = try {
-        js("decodeURIComponent(pathname)") as String
+        decodeURIComponent(pathname).toString()
     } catch (e: Throwable) {
         return Route.NotFound
     }
@@ -130,11 +159,11 @@ private fun robotsTxtHandler(): Promise<Response> {
         Allow: /
         Sitemap: https://mataku.com/sitemap.xml
     """.trimIndent()
-    val headers = buildHeaders(
+    val headers = buildHeadersJs(
         contentType = "text/plain; charset=utf-8",
         cacheControl = "public, max-age=86400"
     )
-    return Promise.resolve(Response(body, ResponseInit(headers = headers)))
+    return Promise.resolve(Response(body.toJsString(), ResponseInit(headers = headers)))
 }
 
 private fun sitemapXmlHandler(): Promise<Response> {
@@ -149,20 +178,12 @@ private fun sitemapXmlHandler(): Promise<Response> {
           </url>
         </urlset>
     """.trimIndent()
-    val headers = buildHeaders(
+    val headers = buildHeadersJs(
         contentType = "application/xml; charset=utf-8",
         cacheControl = "public, max-age=86400"
     )
-    return Promise.resolve(Response(body, ResponseInit(headers = headers)))
+    return Promise.resolve(Response(body.toJsString(), ResponseInit(headers = headers)))
 }
-
-private fun buildHeaders(contentType: String, cacheControl: String) = json(
-    "content-type" to contentType,
-    "cache-control" to cacheControl,
-    "X-Content-Type-Options" to "nosniff",
-    "X-Frame-Options" to "DENY",
-    "Referrer-Policy" to "strict-origin-when-cross-origin"
-)
 
 private fun cacheControlFor(filename: String): String {
     return when {

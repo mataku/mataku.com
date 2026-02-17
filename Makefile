@@ -18,7 +18,7 @@ new:
 	@:
 
 build-worker:
-	./gradlew :worker:compileProductionExecutableKotlinJs --no-daemon
+	./gradlew :worker:compileProductionExecutableKotlinWasmJs --no-daemon
 
 serve:
 	npx wrangler dev
