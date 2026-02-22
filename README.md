@@ -1,6 +1,6 @@
 # mataku.com
 
-Personal blog built with Kotlin.
+Personal blog powered by Kotlin/Wasm on Cloudflare Workers with Static Assets.
 
 ## Modules
 
@@ -10,7 +10,7 @@ Converts Markdown files with YAML frontmatter to HTML. Uses `org.commonmark:comm
 
 ### Worker (Kotlin/Wasm)
 
-Cloudflare Worker script implemented in Kotlin/Wasm. Serves content from Worker Assets. This module is a technical experiment to explore Kotlin/Wasm capabilities.
+Cloudflare Workers script implemented in Kotlin/Wasm. Serves content from Worker Assets. This module is a technical experiment to explore Kotlin/Wasm capabilities.
 
 ## Build Commands
 
