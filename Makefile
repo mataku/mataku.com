@@ -12,7 +12,7 @@ new:
 		echo "Example: make new my-new-article"; \
 		exit 1; \
 	fi
-	./gradlew :generator:new --args="$(filter-out $@,$(MAKECMDGOALS))" --no-daemon
+	./gradlew :generator:new --args="$(filter-out $@,$(MAKECMDGOALS))" --no-daemon -q
 
 %:
 	@:
