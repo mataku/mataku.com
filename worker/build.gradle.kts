@@ -22,7 +22,7 @@ kotlin {
                     val fileName = moduleName.map { "$it.mjs" }
                     val mjsFile = linkTask.flatMap { it.destinationDirectory.file(fileName.get()) }
 
-                    // Patch the generated .uninstantiated.mjs for Cloudflare Workers compatibility.
+                    // Patch the generated .mjs for Cloudflare Workers compatibility.
                     // The Kotlin/Wasm compiler generates environment-specific WASM instantiation code
                     // (Node.js, Deno, browser, etc.), but does not support Cloudflare Workers natively.
                     // These replacements make the generated code runnable on Cloudflare Workers.
@@ -36,13 +36,13 @@ kotlin {
                             // Remove the "Supported JS engine not detected" guard since
                             // Cloudflare Workers is not recognized as a known environment.
                             .replace(
-                                "if (!isNodeJs && !isDeno && !isStandaloneJsVM && !isBrowser) {\n      throw \"Supported JS engine not detected\";\n    }",
+                                "if (!isNodeJs && !isDeno && !isStandaloneJsVM && !isBrowser) {\n  throw \"Supported JS engine not detected\";\n}",
                                 ""
                             )
                             // Remove the isNodeJs block to avoid importing 'node:module',
                             // which causes a wrangler bundling warning.
                             .replace(
-                                Regex("""if \(isNodeJs\) \{.+?\n      \}""", RegexOption.DOT_MATCHES_ALL),
+                                Regex("""if \(isNodeJs\) \{.+?\n  \}""", RegexOption.DOT_MATCHES_ALL),
                                 ""
                             )
                             // Insert Cloudflare Workers WASM instantiation before the isBrowser branch.
