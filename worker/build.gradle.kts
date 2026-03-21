@@ -19,7 +19,7 @@ kotlin {
             binaries.withType<Executable>().configureEach {
                 linkTask.configure {
                     val moduleName = linkTask.flatMap { it.compilerOptions.moduleName }
-                    val fileName = moduleName.map { "$it.uninstantiated.mjs" }
+                    val fileName = moduleName.map { "$it.mjs" }
                     val mjsFile = linkTask.flatMap { it.destinationDirectory.file(fileName.get()) }
 
                     // Patch the generated .uninstantiated.mjs for Cloudflare Workers compatibility.
