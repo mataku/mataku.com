@@ -61,6 +61,19 @@ kotlin {
                                 """.trimMargin()
                             )
                         file.writeText(newText)
+
+                        // Patch the import-object.mjs to remove Node.js detection code
+                        // that imports 'node:module', which causes a wrangler bundling warning.
+                        val importObjectFile = mjsFile.get().asFile.parentFile
+                            .resolve("$module.import-object.mjs")
+                        if (importObjectFile.exists()) {
+                            val importObjectText = importObjectFile.readText()
+                            val patchedImportObjectText = importObjectText.replace(
+                                Regex("""if \(typeof process !== 'undefined' && process\.release\.name === 'node'\) \{.+?\}""", RegexOption.DOT_MATCHES_ALL),
+                                ""
+                            )
+                            importObjectFile.writeText(patchedImportObjectText)
+                        }
                     }
                 }
             }
