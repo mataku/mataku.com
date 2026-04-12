@@ -104,8 +104,9 @@ body {
     font-family: var(--font-body);
     font-weight: 400;
     line-height: 1.9;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     transition: background-color var(--transition-theme), color var(--transition-theme);
+    font-feature-settings: "palt";
 }
 
 .article-card-wrapper,
@@ -256,6 +257,7 @@ article code {
     padding: 0.2em 0.45em;
     border-radius: 4px;
     font-weight: 400;
+    font-feature-settings: normal;
 }
 
 article pre {
@@ -277,6 +279,7 @@ article pre code {
     font-size: 0.82rem;
     color: var(--color-code-text);
     line-height: 1.7;
+    font-feature-settings: normal;
 }
 
 article hr {
