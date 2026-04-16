@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.power.assert)
     application
 }
 
@@ -13,6 +14,8 @@ dependencies {
     implementation(libs.commonmark.ext.gfm.strikethrough)
     implementation(libs.commonmark.ext.autolink)
     implementation(libs.snakeyaml.engine)
+
+    testImplementation(kotlin("test-junit5"))
 }
 
 application {
@@ -37,4 +40,20 @@ tasks.register<JavaExec>("feed") {
     mainClass.set("blog.FeedGenerator")
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = rootProject.projectDir
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+powerAssert {
+    functions = listOf(
+        "kotlin.test.assertEquals",
+        "kotlin.test.assertNotEquals",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertFalse",
+        "kotlin.test.assertNull",
+        "kotlin.test.assertNotNull",
+        "kotlin.test.assertContains",
+    )
 }
