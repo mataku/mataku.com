@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#{{tag}} - Club Kids Never Die</title>
+    <link rel="stylesheet" href="/assets/{{css_file}}">
+    <link rel="icon" href="/assets/favicon.ico">
+    <meta name="theme-color" content="transparent">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <script src="/assets/{{theme_js_file}}"></script>
+    <link rel="alternate" type="application/atom+xml" title="Club Kids Never Die" href="https://mataku.com/feed.xml">
+</head>
+
+<body>
+    <div class="container">
+        <header class="index-header">
+            <a href="/">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                <span>Home</span>
+            </a>
+            {{header_actions}}
+        </header>
+        <main>
+            <h2 class="tag-heading">#{{tag}}</h2>
+            <div class="article-list">
+                {{article_list}}
+            </div>
+        </main>
+        {{footer}}
+    </div>
+</body>
+
+</html>

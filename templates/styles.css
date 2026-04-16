@@ -550,6 +550,26 @@ button.social-icon {
     letter-spacing: 0.02em;
 }
 
+a.tag {
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+a.tag:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.tag-heading {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-heading);
+    letter-spacing: 0.02em;
+    padding: 1.5rem 0 0;
+}
+
 .article-card .tags {
     margin-top: 0.6rem;
 }

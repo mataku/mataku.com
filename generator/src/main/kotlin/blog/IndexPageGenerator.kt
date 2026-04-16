@@ -59,7 +59,7 @@ object IndexPageGenerator {
         }
     }
 
-    private fun collectArticles(): List<ArticleSummary> {
+    internal fun collectArticles(): List<ArticleSummary> {
         val markdownFiles = articlesDir.listDirectoryEntries("*.md")
 
         return markdownFiles
@@ -90,7 +90,7 @@ object IndexPageGenerator {
             .sortedByDescending { it.sortDate }
     }
 
-    private fun buildArticleListHtml(articles: List<ArticleSummary>): String {
+    internal fun buildArticleListHtml(articles: List<ArticleSummary>): String {
         return articles.joinToString("\n") { article ->
             val tagsHtml = if (article.tags.isNotEmpty()) {
                 val tagSpans = article.tags.joinToString("") {
@@ -139,7 +139,7 @@ object IndexPageGenerator {
         return sb.toString()
     }
 
-    private fun escapeHtml(value: String): String {
+    internal fun escapeHtml(value: String): String {
         return value
             .replace("&", "&amp;")
             .replace("<", "&lt;")
@@ -147,7 +147,7 @@ object IndexPageGenerator {
             .replace("\"", "&quot;")
     }
 
-    private data class ArticleSummary(
+    internal data class ArticleSummary(
         val slug: String,
         val title: String,
         val displayDate: String,
