@@ -60,9 +60,7 @@ class Generator {
             val gistEmbeddedHtml = GistEmbedTransformer.transform(xEmbedResult.html)
             val htmlBody = gistEmbeddedHtml
 
-            val tagsHtml = if (article.tags.isNotEmpty()) {
-                article.tags.joinToString("") { """<span class="tag">$it</span>""" }
-            } else ""
+            val tagsHtml = TagLink.renderAnchors(article.tags)
 
             val slug = file.nameWithoutExtension
 
@@ -97,6 +95,7 @@ class Generator {
             IndexPageGenerator.generate()
             FeedGenerator.generate()
             SitemapGenerator.generate()
+            TagPageGenerator.generate()
         }
     }
 
