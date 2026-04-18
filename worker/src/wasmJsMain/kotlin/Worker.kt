@@ -7,6 +7,7 @@ import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.Promise
 
 private external interface Env : JsAny {
+  @Suppress("PropertyName")
   val ASSETS: AssetsFetcher
 }
 
