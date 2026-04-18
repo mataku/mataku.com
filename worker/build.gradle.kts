@@ -15,7 +15,9 @@ kotlin {
     nodejs()
     binaries.executable()
 
-    compilations.configureEach {
+    // Apply Cloudflare Workers patches only to the main compilation. The test compilation
+    // runs on Node.js via wasmJsNodeTest, so it must keep the original Node.js instantiation path.
+    compilations.matching { it.name == "main" }.configureEach {
       binaries.withType<Executable>().configureEach {
         linkTask.configure {
           val moduleName = linkTask.flatMap { it.compilerOptions.moduleName }
@@ -92,6 +94,11 @@ kotlin {
     wasmJsMain {
       dependencies {
         implementation(libs.kotlinx.browser)
+      }
+    }
+    wasmJsTest {
+      dependencies {
+        implementation(kotlin("test"))
       }
     }
   }
