@@ -28,6 +28,9 @@ jobs:
       - name: Run generator tests
         run: ./gradlew :generator:test
 
+      - name: Run worker tests
+        run: ./gradlew :worker:wasmJsTest
+
   preview:
     runs-on: ubuntu-latest
     timeout-minutes: 10
