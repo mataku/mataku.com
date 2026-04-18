@@ -1,5 +1,5 @@
 package blog
 
 fun main() {
-    Generator().run()
+  Generator().run()
 }

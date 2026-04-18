@@ -9,32 +9,37 @@ import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.readBytes
 
 object AssetHasher {
-    fun processStylesCss(projectRoot: Path): String {
-        return processAsset(projectRoot, "templates/styles.css", "styles", "css")
-    }
+  fun processStylesCss(projectRoot: Path): String = processAsset(projectRoot, "templates/styles.css", "styles", "css")
 
-    fun processThemeJs(projectRoot: Path): String {
-        return processAsset(projectRoot, "templates/theme.js", "theme", "js")
-    }
+  fun processThemeJs(projectRoot: Path): String = processAsset(projectRoot, "templates/theme.js", "theme", "js")
 
-    private fun processAsset(projectRoot: Path, sourcePath: String, baseName: String, extension: String): String {
-        val source = projectRoot.resolve(sourcePath)
-        val outputAssetsDir = projectRoot.resolve("output/assets")
-        val hash = computeHash(source)
-        val hashedName = "$baseName.$hash.$extension"
-        val target = outputAssetsDir.resolve(hashedName)
+  private fun processAsset(
+    projectRoot: Path,
+    sourcePath: String,
+    baseName: String,
+    extension: String,
+  ): String {
+    val source = projectRoot.resolve(sourcePath)
+    val outputAssetsDir = projectRoot.resolve("output/assets")
+    val hash = computeHash(source)
+    val hashedName = "$baseName.$hash.$extension"
+    val target = outputAssetsDir.resolve(hashedName)
 
-        outputAssetsDir.listDirectoryEntries("$baseName.*.$extension")
-            .forEach { it.deleteIfExists() }
+    outputAssetsDir
+      .listDirectoryEntries("$baseName.*.$extension")
+      .forEach { it.deleteIfExists() }
 
-        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
+    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
 
-        return hashedName
-    }
+    return hashedName
+  }
 
-    private fun computeHash(filePath: Path, length: Int = 8): String {
-        val bytes = filePath.readBytes()
-        val digest = MessageDigest.getInstance("MD5").digest(bytes)
-        return digest.joinToString("") { "%02x".format(it) }.take(length)
-    }
+  private fun computeHash(
+    filePath: Path,
+    length: Int = 8,
+  ): String {
+    val bytes = filePath.readBytes()
+    val digest = MessageDigest.getInstance("MD5").digest(bytes)
+    return digest.joinToString("") { "%02x".format(it) }.take(length)
+  }
 }

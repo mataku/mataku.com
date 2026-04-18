@@ -7,16 +7,17 @@ import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 
 object MarkdownRenderer {
-    private val extensions = listOf(
-        TablesExtension.create(),
-        StrikethroughExtension.create(),
-        AutolinkExtension.create()
+  private val extensions =
+    listOf(
+      TablesExtension.create(),
+      StrikethroughExtension.create(),
+      AutolinkExtension.create(),
     )
-    private val parser = Parser.builder().extensions(extensions).build()
-    private val renderer = HtmlRenderer.builder().extensions(extensions).build()
+  private val parser = Parser.builder().extensions(extensions).build()
+  private val renderer = HtmlRenderer.builder().extensions(extensions).build()
 
-    fun render(markdown: String): String {
-        val document = parser.parse(markdown)
-        return renderer.render(document)
-    }
+  fun render(markdown: String): String {
+    val document = parser.parse(markdown)
+    return renderer.render(document)
+  }
 }
