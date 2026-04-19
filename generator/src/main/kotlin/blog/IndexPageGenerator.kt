@@ -73,6 +73,8 @@ object IndexPageGenerator {
         val title = article.metadata["title"] ?: return@mapNotNull null
         val isDraft = article.metadata["draft"]?.toBoolean() ?: false
         if (isDraft) return@mapNotNull null
+        val isUnlisted = article.metadata["unlisted"]?.toBoolean() ?: false
+        if (isUnlisted) return@mapNotNull null
 
         val slug = file.nameWithoutExtension
 
