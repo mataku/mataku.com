@@ -30,4 +30,8 @@ local.properties
 .wrangler/
 node_modules/
 
+bundle-baseline.txt
+bundle-metrics.txt
+bundle-report.md
+
 .serena/

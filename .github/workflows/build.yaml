@@ -64,6 +64,16 @@ jobs:
       - name: Build Worker
         run: make build-worker
 
+      - name: Restore bundle size baseline
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: bundle-baseline.txt
+          key: bundle-size-baseline-${{ github.event.pull_request.base.sha }}
+          restore-keys: bundle-size-baseline-
+
+      - name: Report bundle size
+        run: ./scripts/bundle-report.sh
+
       - name: Upload Worker Version
         if: ${{ !startsWith(github.head_ref, 'renovate/') }}
         id: deploy
@@ -80,3 +90,19 @@ jobs:
           header: preview-deploy
           message: |
             Preview deployment: ${{ steps.deploy.outputs.deployment-url }}
+
+      - name: Append Worker startup time
+        if: ${{ !startsWith(github.head_ref, 'renovate/') }}
+        env:
+          DEPLOY_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: |
+          startup=$(printf '%s' "$DEPLOY_OUTPUT" | grep -oE 'Worker Startup Time: [0-9]+ ms' | head -1 || true)
+          if [ -n "$startup" ]; then
+            printf '\n**%s** (limit: 400 ms)\n' "$startup" >> bundle-report.md
+          fi
+
+      - name: Comment bundle report on PR
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: bundle-report
+          path: bundle-report.md
