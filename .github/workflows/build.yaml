@@ -76,7 +76,6 @@ jobs:
         run: ./scripts/bundle-report.sh
 
       - name: Upload Worker Version
-        if: ${{ !startsWith(github.head_ref, 'renovate/') }}
         id: deploy
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0
         with:
@@ -85,7 +84,6 @@ jobs:
           command: versions upload --preview-alias=feature-branch
 
       - name: Comment deployment URL on PR
-        if: ${{ !startsWith(github.head_ref, 'renovate/') }}
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: preview-deploy
@@ -93,7 +91,6 @@ jobs:
             Preview deployment: ${{ steps.deploy.outputs.deployment-url }}
 
       - name: Append Worker startup time
-        if: ${{ !startsWith(github.head_ref, 'renovate/') }}
         env:
           DEPLOY_OUTPUT: ${{ steps.deploy.outputs.command-output }}
         run: |
