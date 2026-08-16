@@ -96,7 +96,7 @@ jobs:
         run: |
           startup=$(printf '%s' "$DEPLOY_OUTPUT" | grep -oE 'Worker Startup Time: [0-9]+ ms' | head -1 || true)
           if [ -n "$startup" ]; then
-            printf '\n**%s** (limit: 400 ms)\n' "$startup" >> bundle-report.md
+            printf '\n**%s** (limit: 1,000 ms)\n' "$startup" >> bundle-report.md
           fi
 
       - name: Comment bundle report on PR
