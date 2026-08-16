@@ -18,7 +18,7 @@ jobs:
         gh extension install actions/gh-actions-cache
 
         set +e
-        gh actions-cache list -R $REPO -L 50 | cut -f 1 | sort | uniq | while IFS= read f
+        gh actions-cache list -R $REPO -L 50 | cut -f 1 | sort | uniq | grep -v '^bundle-size-baseline-' | while IFS= read f
         do
           gh actions-cache delete $f -R $REPO --confirm
         done
