@@ -53,8 +53,8 @@ Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `ou
 Kotlin/Wasm module compiled to WebAssembly that runs as a Cloudflare Worker. Handles routing, response headers (Content-Type, Cache-Control, security headers), and serves static assets via the ASSETS binding.
 
 - `Worker.kt` (`src/wasmJsMain/kotlin/`): Route resolution (sealed class `Route`), asset fetching, robots.txt/sitemap.xml generation, 404 handling. Only GET requests are allowed.
-- `entry.js`: JS entry point that bridges wrangler to the compiled Kotlin/Wasm (`blog-worker.mjs`)
-- `build.gradle.kts`: Kotlin/Wasm configuration with Cloudflare Workers compatibility patches (removes Node.js/Deno detection, injects Cloudflare-specific Wasm instantiation)
+- `entry.js`: JS entry point for wrangler. It instantiates `blog-worker.wasm` with the `importObject` exported by the generated `blog-worker.import-object.mjs` and exposes the Kotlin `fetch` export as the Worker handler. The generated `blog-worker.mjs` loader is not used because its environment detection does not support Cloudflare Workers (see KT-65796, KT-73159) and its shape changes between Kotlin releases.
+- `build.gradle.kts`: Kotlin/Wasm target configuration (nodejs runtime for tests, executable binary)
 
 ### Cloudflare Workers + Static Assets
 
