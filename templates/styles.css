@@ -14,6 +14,12 @@
   --color-text-muted: #6b6b6b;
   --color-date: #838383;
   --color-border: #e0ddd8;
+  --color-card-border: rgba(255, 255, 255, 0.4);
+  --color-card-border-hover: rgba(255, 255, 255, 0.6);
+  --color-card-highlight: rgba(255, 255, 255, 0.5);
+  --color-card-highlight-hover: rgba(255, 255, 255, 0.6);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
   --color-accent: #7F52FF;
   --color-code-bg: #1e1e1e;
   --color-code-text: #d4d4d4;
@@ -41,6 +47,12 @@
     --color-header: #c8d3dc;
     --color-text-muted: #9a9a9a;
     --color-border: #393e46;
+    --color-card-border: rgba(255, 255, 255, 0.08);
+    --color-card-border-hover: rgba(255, 255, 255, 0.14);
+    --color-card-highlight: rgba(255, 255, 255, 0.06);
+    --color-card-highlight-hover: rgba(255, 255, 255, 0.08);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.3);
     --color-accent: #9b7aff;
     --color-code-bg: #1a1d24;
     --color-tag: #DCE775;
@@ -61,6 +73,12 @@
   --color-header: #c8d3dc;
   --color-text-muted: #9a9a9a;
   --color-border: #393e46;
+  --color-card-border: rgba(255, 255, 255, 0.08);
+  --color-card-border-hover: rgba(255, 255, 255, 0.14);
+  --color-card-highlight: rgba(255, 255, 255, 0.06);
+  --color-card-highlight-hover: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.3);
   --color-accent: #9b7aff;
   --color-code-bg: #1a1d24;
   --color-tag: #DCE775;
@@ -80,6 +98,12 @@
   --color-header: #2c4450;
   --color-text-muted: #6b6b6b;
   --color-border: #e0ddd8;
+  --color-card-border: rgba(255, 255, 255, 0.4);
+  --color-card-border-hover: rgba(255, 255, 255, 0.6);
+  --color-card-highlight: rgba(255, 255, 255, 0.5);
+  --color-card-highlight-hover: rgba(255, 255, 255, 0.6);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
   --color-accent: #7F52FF;
   --color-code-bg: #1e1e1e;
   --color-code-text: #d4d4d4;
@@ -489,13 +513,13 @@ button.social-icon {
   background: var(--color-card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--color-card-border);
   border-radius: 12px;
   text-decoration: none;
   color: var(--color-text);
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    var(--shadow-card),
+    inset 0 1px 0 var(--color-card-highlight);
   transition:
     transform var(--duration-card-lift) cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow var(--duration-card-lift) cubic-bezier(0.4, 0, 0.2, 1),
@@ -505,10 +529,9 @@ button.social-icon {
 .article-card:hover {
   transform: translateY(-6px);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  border-color: rgba(255, 255, 255, 0.6);
+    var(--shadow-card-hover),
+    inset 0 1px 0 var(--color-card-highlight-hover);
+  border-color: var(--color-card-border-hover);
 }
 
 .article-card h2 {
