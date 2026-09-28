@@ -28,6 +28,7 @@ Thumbs.db
 local.properties
 
 .wrangler/
+.cloudflare/
 node_modules/
 
 bundle-baseline.txt
