@@ -48,11 +48,12 @@ jobs:
           key: bundle-size-baseline-${{ github.sha }}
 
       - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            --data '{"files":["https://mataku.com","https://mataku.com/","https://mataku.com/assets/styles.css","https://mataku.com/page/*","https://mataku.com/feed.xml"]}'
+          npx cf cache purge --force \
+            --body '{"files":["https://mataku.com","https://mataku.com/","https://mataku.com/assets/styles.css","https://mataku.com/page/*","https://mataku.com/feed.xml"]}'
       
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: changes

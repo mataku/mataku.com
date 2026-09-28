@@ -21,7 +21,7 @@ build-worker:
 	./gradlew :worker:compileProductionExecutableKotlinWasmJs --no-daemon
 
 serve:
-	npx wrangler dev
+	npx cf dev
 
 deploy: build-worker generate
-	npx wrangler deploy
+	npx cf deploy
