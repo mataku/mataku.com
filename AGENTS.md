@@ -62,8 +62,8 @@ Deployed via `cf deploy` ([cf CLI](https://blog.cloudflare.com/cloudflare-cf-cli
 
 - `cloudflare.config.ts`: cf project configuration (project name: `mataku-com`, entry: `worker/entry.js`, `ASSETS` binding)
 - `wrangler.config.ts`: Wrangler bundler options used by cf (assets dir: `output/`)
-- `wrangler.jsonc`: Kept only for PR preview uploads (`wrangler versions upload --preview-alias` in `build.yaml`), since Wrangler cannot read `cloudflare.config.ts`. Keep it in sync with `cloudflare.config.ts`.
 - `cf build` writes its output to `.cloudflare/output/` (used by `scripts/bundle-report.sh`)
+- PR previews are deployed with `cf previews deploy` (`build.yaml`); cache purge after deploy uses `cf cache purge` (`deploy.yaml`)
 
 ## Key Directories
 
