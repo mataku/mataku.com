@@ -37,7 +37,7 @@
     {
       "matchDatasources": ["java-version"],
       "minimumReleaseAge": null,
-      "allowedVersions": "<26"
+      "allowedVersions": "/\\.LTS$/"
     }
   ]
 }
