@@ -81,7 +81,8 @@ jobs:
         with:
           header: preview-hint
           message: |
-            Add the `preview` label to deploy a preview.
+            > [!NOTE]
+            > If you need a preview deployment for this PR, add the `preview` label.
 
       - name: Comment bundle report on PR
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
