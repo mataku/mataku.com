@@ -31,7 +31,7 @@ jobs:
       - name: Run worker tests
         run: ./gradlew :worker:wasmJsTest
 
-  preview:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -75,21 +75,14 @@ jobs:
       - name: Report bundle size
         run: ./scripts/bundle-report.sh
 
-      - name: Deploy Worker Preview
-        id: deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          url=$(npx cf previews deploy | jq -r '.preview_urls[0]')
-          echo "deployment-url=$url" >> "$GITHUB_OUTPUT"
-
-      - name: Comment deployment URL on PR
+      - name: Comment preview label hint on PR
+        if: "!contains(github.event.pull_request.labels.*.name, 'preview')"
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
-          header: preview-deploy
+          header: preview-hint
           message: |
-            Preview deployment: ${{ steps.deploy.outputs.deployment-url }}
+            > [!NOTE]
+            > If you need a preview deployment for this PR, add the `preview` label.
 
       - name: Comment bundle report on PR
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5

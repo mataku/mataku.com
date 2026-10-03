@@ -1,0 +1,66 @@
+name: Preview
+
+on:
+  pull_request:
+    types: [synchronize, labeled]
+
+jobs:
+  deploy:
+    if: contains(github.event.pull_request.labels.*.name, 'preview') && (github.event.action != 'labeled' || github.event.label.name == 'preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: preview-${{ github.head_ref }}
+      cancel-in-progress: true
+    permissions:
+      pull-requests: write
+      contents: read
+    env:
+      GRADLE_OPTS: -Dorg.gradle.configuration-cache=false -Dorg.gradle.jvmargs=-Xmx1g -Dorg.gradle.daemon=false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate articles
+        run: make generate
+
+      - name: Build Worker
+        run: make build-worker
+
+      - name: Deploy Worker Preview
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          url=$(npx cf previews deploy | jq -r '.preview_urls[0]')
+          echo "deployment-url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Delete preview label hint on PR
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: preview-hint
+          delete: true
+
+      - name: Comment deployment URL on PR
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: preview-deploy
+          message: |
+            Preview deployment: ${{ steps.deploy.outputs.deployment-url }}
