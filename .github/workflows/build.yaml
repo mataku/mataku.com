@@ -2,13 +2,15 @@ name: Build
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 concurrency:
-  group: build-${{ github.head_ref }}
+  group: build-${{ github.head_ref }}${{ github.event.action == 'labeled' && github.event.label.name != 'preview' && format('-{0}', github.run_id) || '' }}
   cancel-in-progress: true
 
 jobs:
   test:
+    if: github.event.action != 'labeled' || github.event.label.name == 'preview'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -32,6 +34,7 @@ jobs:
         run: ./gradlew :worker:wasmJsTest
 
   preview:
+    if: github.event.action != 'labeled' || github.event.label.name == 'preview'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -77,6 +80,7 @@ jobs:
 
       - name: Deploy Worker Preview
         id: deploy
+        if: contains(github.event.pull_request.labels.*.name, 'preview')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -84,7 +88,23 @@ jobs:
           url=$(npx cf previews deploy | jq -r '.preview_urls[0]')
           echo "deployment-url=$url" >> "$GITHUB_OUTPUT"
 
+      - name: Comment preview label hint on PR
+        if: "!contains(github.event.pull_request.labels.*.name, 'preview')"
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: preview-hint
+          message: |
+            Add the `preview` label to deploy a preview.
+
+      - name: Delete preview label hint on PR
+        if: steps.deploy.outcome == 'success'
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: preview-hint
+          delete: true
+
       - name: Comment deployment URL on PR
+        if: steps.deploy.outcome == 'success'
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: preview-deploy
