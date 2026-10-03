@@ -33,6 +33,11 @@
       "ignoreUnstable": false,
       "automerge": true,
       "platformAutomerge": true
+    },
+    {
+      "matchDatasources": ["java-version"],
+      "minimumReleaseAge": null,
+      "allowedVersions": "<26"
     }
   ]
 }
