@@ -135,7 +135,7 @@ https://cloud.google.com/scheduler
 
 Heroku Scheduler からの移行先にした。HTTP / PubSub / AppEngine HTTP を受け付けているので、rake task でやっていた処理を Web API 化して、そのエンドポイント (Cloud Run) にリクエストするように job を作成。
 
-![](/images/cloud-run-schedule.png "Twitter の定期投稿の job の例")
+![](/articles/cloud-run/schedule.png "Twitter の定期投稿の job の例")
 
 
 Cloud Scheduler からリクエストする際に Auth ヘッダーに Google OAuth / OIDC トークンを付与できる。リクエストしたいエンドポイントは Cloud Scheduler 以外からは呼ばれたくないので、OIDC トークンを付与してもらい、リクエスト時に検証するようにした。

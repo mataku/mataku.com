@@ -11,7 +11,7 @@ tags:
 `Modifier.Node` を用いて指定時間以内の多重クリック防止処理を書いた。以前は `Modifier.composed` を用いて書いていたものの後継に当たる。
 
 
-![](/images/compose-multi-tap-prevention-click.gif)
+![](/articles/compose-multi-tap-prevention/click.gif)
 
 大切なことはすべて https://developer.android.com/develop/ui/compose/custom-modifiers にあった。
 

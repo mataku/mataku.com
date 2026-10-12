@@ -17,14 +17,14 @@ WebView 実装で何を使うかは開発者向けオプションから選択で
 
 | 開発者向けオプション  | PackageInfoからの取得例 |
 | :--: | :--: |
-| <img src="/images/android-webview-package-webview.png" style="width: 100%; max-width: 300px;" /> | <img src="/images/android-webview-package-webview-info.png" style="width: 100%; max-width: 300px;" /> |
+| <img src="/articles/android-webview-package/webview.png" style="width: 100%; max-width: 300px;" /> | <img src="/articles/android-webview-package/webview-info.png" style="width: 100%; max-width: 300px;" /> |
 
 
 例えば WebView beta を指定した場合は以下のようになる。
 
 | 開発者向けオプション | PackageInfoからの取得例 |
 | :--: | :--: |
-| <img src="/images/android-webview-package-webview-beta.png" style="width: 100%; max-width: 300px;" /> | <img src="/images/android-webview-package-webview-beta-info.png" style="width: 100%; max-width: 300px;" /> |
+| <img src="/articles/android-webview-package/webview-beta.png" style="width: 100%; max-width: 300px;" /> | <img src="/articles/android-webview-package/webview-beta-info.png" style="width: 100%; max-width: 300px;" /> |
 
 - - - 
 

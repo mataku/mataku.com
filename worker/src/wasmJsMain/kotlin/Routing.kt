@@ -40,7 +40,6 @@ internal fun resolveRoute(pathname: String): Route {
     pathname.isEmpty() -> Route.Index
     pathname == "feed.xml" -> Route.Asset(pathname)
     pathname.startsWith("assets/") -> Route.Asset(pathname)
-    pathname.startsWith("images/") -> Route.Asset(pathname)
     pathname.startsWith("articles/") && !pathname.contains(".") -> Route.Article(pathname)
     pathname.startsWith("articles/") && pathname.endsWith(".html") -> Route.Article(pathname.removeSuffix(".html"))
     else -> Route.NotFound

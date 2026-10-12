@@ -2,12 +2,10 @@ package blog
 
 import java.nio.file.Path
 import java.time.LocalDate
-import kotlin.io.path.createDirectories
 import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 object IndexPageGenerator {
   private const val ARTICLES_PER_PAGE = 20
@@ -55,9 +53,7 @@ object IndexPageGenerator {
         } else {
           outputDir.resolve("page/$pageNum/index.html")
         }
-      outputPath.parent.createDirectories()
-      outputPath.writeText(html)
-      println("Generated: $outputPath")
+      if (OutputWriter.writeIfChanged(outputPath, html)) println("Generated: $outputPath")
     }
   }
 

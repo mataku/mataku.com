@@ -8,11 +8,11 @@ import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 class Generator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
   private val articlesDir: Path = projectRoot.resolve("articles")
+  private val staticDir: Path = projectRoot.resolve("static")
   private val outputDir: Path = projectRoot.resolve("output")
   private val articlesOutputDir: Path = outputDir.resolve("articles")
   private val templatePath: Path = projectRoot.resolve("templates/article.html")
@@ -20,6 +20,7 @@ class Generator {
 
   fun run() {
     articlesOutputDir.createDirectories()
+    syncStaticFiles()
 
     val cssFile = AssetHasher.processStylesCss(projectRoot)
     val themeJsFile = AssetHasher.processThemeJs(projectRoot)
@@ -88,8 +89,7 @@ class Generator {
 
       val html = TemplateEngine.render(articleTemplate, variables)
       val outputFile = articlesOutputDir.resolve("$slug.html")
-      outputFile.writeText(html)
-      println("Generated: $outputFile")
+      if (OutputWriter.writeIfChanged(outputFile, html)) println("Generated: $outputFile")
     }
 
     val notFoundOutputPath = outputDir.resolve("404.html")
@@ -107,6 +107,13 @@ class Generator {
     }
   }
 
+  private fun syncStaticFiles() {
+    val copied =
+      StaticFileSyncer.sync(staticDir, outputDir) +
+        StaticFileSyncer.sync(articlesDir, articlesOutputDir) { it.extension != "md" }
+    println("Synced static files: $copied copied")
+  }
+
   private fun generateStaticPage(
     templatePath: Path,
     outputPath: Path,
@@ -121,7 +128,6 @@ class Generator {
         "theme_js_file" to themeJsFile,
       )
     val html = TemplateEngine.render(templatePath.readText(), variables)
-    outputPath.writeText(html)
-    println("Generated: $outputPath")
+    if (OutputWriter.writeIfChanged(outputPath, html)) println("Generated: $outputPath")
   }
 }

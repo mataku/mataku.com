@@ -8,7 +8,6 @@ import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 object FeedGenerator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
@@ -60,8 +59,7 @@ object FeedGenerator {
 
     val xml = buildAtomFeed(entries, lastUpdated)
     val outputFile = outputDir.resolve("feed.xml")
-    outputFile.writeText(xml)
-    println("Generated: $outputFile")
+    if (OutputWriter.writeIfChanged(outputFile, xml)) println("Generated: $outputFile")
   }
 
   private fun extractSummary(

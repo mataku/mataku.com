@@ -28,11 +28,6 @@ class RoutingTest {
   }
 
   @Test
-  fun resolveRoute_imagesPath_returnsAsset() {
-    assertEquals(Route.Asset("images/foo.png"), resolveRoute("images/foo.png"))
-  }
-
-  @Test
   fun resolveRoute_articleWithoutExtension_returnsArticle() {
     assertEquals(Route.Article("articles/my-article"), resolveRoute("articles/my-article"))
   }
