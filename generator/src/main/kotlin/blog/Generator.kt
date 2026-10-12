@@ -8,7 +8,6 @@ import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 class Generator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
@@ -90,8 +89,7 @@ class Generator {
 
       val html = TemplateEngine.render(articleTemplate, variables)
       val outputFile = articlesOutputDir.resolve("$slug.html")
-      outputFile.writeText(html)
-      println("Generated: $outputFile")
+      if (OutputWriter.writeIfChanged(outputFile, html)) println("Generated: $outputFile")
     }
 
     val notFoundOutputPath = outputDir.resolve("404.html")
@@ -130,7 +128,6 @@ class Generator {
         "theme_js_file" to themeJsFile,
       )
     val html = TemplateEngine.render(templatePath.readText(), variables)
-    outputPath.writeText(html)
-    println("Generated: $outputPath")
+    if (OutputWriter.writeIfChanged(outputPath, html)) println("Generated: $outputPath")
   }
 }

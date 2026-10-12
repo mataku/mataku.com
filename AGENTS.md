@@ -50,6 +50,7 @@ Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `ou
 - `ArticleCreator`: Creates new article markdown files from `templates/article.md` with current date
 - `TemplateEngine`: Regex-based `{{key}}` placeholder replacement
 - `FrontmatterParser`: Parses `---`-delimited YAML frontmatter with SnakeYAML Engine, returns `Article(metadata, content, tags)`
+- `OutputWriter`: Writes generated HTML/XML only when the content differs from the file on disk, so an unchanged site produces no writes
 - `StaticFileSyncer`: Mirrors a source tree into `output/`, copying only files that are missing, differ in size, or are newer. Orphans are not removed; CI starts from a clean checkout and `make clean` handles local leftovers.
 - `AssetHasher`: MD5-hashes CSS/JS files for cache busting (`styles.<hash>.css`, `theme.<hash>.js`)
 - `JsonWriter`: Manually builds JSON strings without external libraries (RFC 8259 escape handling)

@@ -6,7 +6,6 @@ import kotlin.io.path.extension
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 object SitemapGenerator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
@@ -36,8 +35,7 @@ object SitemapGenerator {
 
     val xml = buildSitemap(articles)
     val outputFile = outputDir.resolve("sitemap.xml")
-    outputFile.writeText(xml)
-    println("Generated: $outputFile")
+    if (OutputWriter.writeIfChanged(outputFile, xml)) println("Generated: $outputFile")
   }
 
   private fun buildSitemap(articles: List<SitemapEntry>): String {

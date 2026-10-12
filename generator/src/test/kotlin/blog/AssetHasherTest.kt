@@ -3,9 +3,12 @@ package blog
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.attribute.FileTime
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
+import kotlin.io.path.getLastModifiedTime
 import kotlin.io.path.readText
+import kotlin.io.path.setLastModifiedTime
 import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -71,6 +74,19 @@ class AssetHasherTest {
 
     assertFalse(stale.exists())
     assertTrue(unrelated.exists(), "unrelated asset families should not be deleted")
+  }
+
+  @Test
+  fun `does not rewrite a hashed file that already exists`() {
+    setUpTemplate("templates/styles.css", "hello")
+    assetsDir()
+    val name = AssetHasher.processStylesCss(projectRoot)
+    val target = projectRoot.resolve("output/assets").resolve(name)
+    target.setLastModifiedTime(FileTime.fromMillis(0))
+
+    AssetHasher.processStylesCss(projectRoot)
+
+    assertEquals(0, target.getLastModifiedTime().toMillis())
   }
 
   @Test

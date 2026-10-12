@@ -1,9 +1,7 @@
 package blog
 
 import java.nio.file.Path
-import kotlin.io.path.createDirectories
 import kotlin.io.path.readText
-import kotlin.io.path.writeText
 
 object TagPageGenerator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
@@ -48,9 +46,7 @@ object TagPageGenerator {
       val html = TemplateEngine.render(template, variables)
 
       val outputPath = outputDir.resolve("tags/${TagLink.slug(tag)}/index.html")
-      outputPath.parent.createDirectories()
-      outputPath.writeText(html)
-      println("Generated: $outputPath")
+      if (OutputWriter.writeIfChanged(outputPath, html)) println("Generated: $outputPath")
     }
   }
 }

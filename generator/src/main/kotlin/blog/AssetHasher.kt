@@ -6,7 +6,10 @@ import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
+import kotlin.io.path.exists
+import kotlin.io.path.fileSize
 import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 import kotlin.io.path.readBytes
 
 object AssetHasher {
@@ -29,9 +32,12 @@ object AssetHasher {
     outputAssetsDir.createDirectories()
     outputAssetsDir
       .listDirectoryEntries("$baseName.*.$extension")
+      .filter { it.name != hashedName }
       .forEach { it.deleteIfExists() }
 
-    Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
+    if (!target.exists() || target.fileSize() != source.fileSize()) {
+      Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
+    }
 
     return hashedName
   }
