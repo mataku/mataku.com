@@ -29,7 +29,7 @@ minne ではゲスト、会員登録済みユーザ、作家 とユーザ属性�
 
 現状は以下を想定しています。
 
-![](/articles/minne-multi-module/minne-multi-module-structure.png "モジュール構成の概念図")
+![](/articles/minne-multi-module/structure.png "モジュール構成の概念図")
 
 ```shell
 # ディレクトリ構成

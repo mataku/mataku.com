@@ -8,9 +8,9 @@ Maven Central へバイナリをあげるにあたり、Sonatype OSSRH へバイ
 
 https://s01.oss.sonatype.org/ へ行き、右上の Profile からアクセストークンを発行すると username:token という形式で User Token が発行されるので、それぞれ username, password として差し替える。
 
-![](/articles/sonatype-token-auth/sonatype-navigation.png "アクセストークン発行画面への道")
+![](/articles/sonatype-token-auth/navigation.png "アクセストークン発行画面への道")
 
-![](/articles/sonatype-token-auth/sonatype-generate-token.png "アクセストークン発行画面")
+![](/articles/sonatype-token-auth/generate-token.png "アクセストークン発行画面")
 
 <!-- {{< figure src="../navigation.png" align=center caption="アクセストークン発行画面への道">}} -->
 

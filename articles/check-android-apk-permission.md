@@ -42,7 +42,7 @@ uses-permission: name='android.permission.INTERNET'
 CI でのワークフローで生成された apk から、権限を aapt でパースして変更があったら教えてくれるようにしているので aapt コマンドを CI サービス上で使えるようにパスを通す必要があります。もし何らかの変更があり, それが期待するものであれば, リストも一緒に更新してもらう流れです。
 
 
-![](/articles/check-android-apk-permission/check-android-apk-permission-danger-result.png "Danger によるコメント")
+![](/articles/check-android-apk-permission/danger-result.png "Danger によるコメント")
 
 ## メモ
 

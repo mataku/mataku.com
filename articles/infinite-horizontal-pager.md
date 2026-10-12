@@ -11,7 +11,7 @@ Jetpack Compose で横スワイプで画像切り替えのような、カルー�
 
 無限カルーセルが必要になり、[accompanist リポジトリのサンプル](https://github.com/google/accompanist/blob/b823877ed2c42836a2a695d5dd3730ee7d23d6bc/sample/src/main/java/com/google/accompanist/sample/pager/HorizontalPagerLoopingSample.kt)にあるように `Int.MAX_VALUE` (かできるだけ大きな値) 個の要素を持つ Pager を用意して、余り計算をして対象の要素を算出するみたいにするのも良かったけど、いつだかの ViewPager2 のように端にスクロール用の要素をおいてサイレントスクロールするようにした。
 
-![](/articles/infinite-horizontal-pager/infinite-horizontal-pager-behaviour.gif "3 つの要素を持つリストによる動作サンプル (ポジションの遷移付き)")
+![](/articles/infinite-horizontal-pager/behaviour.gif "3 つの要素を持つリストによる動作サンプル (ポジションの遷移付き)")
 
 
 ```kotlin
