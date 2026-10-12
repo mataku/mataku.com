@@ -40,6 +40,15 @@ class AssetHasherTest {
   }
 
   @Test
+  fun `creates output assets directory when missing`() {
+    setUpTemplate("templates/styles.css", "hello")
+
+    val name = AssetHasher.processStylesCss(projectRoot)
+
+    assertTrue(projectRoot.resolve("output/assets").resolve(name).exists())
+  }
+
+  @Test
   fun `copies source file to hashed path in output assets`() {
     setUpTemplate("templates/styles.css", "hello")
     assetsDir()

@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
+import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.readBytes
@@ -25,6 +26,7 @@ object AssetHasher {
     val hashedName = "$baseName.$hash.$extension"
     val target = outputAssetsDir.resolve(hashedName)
 
+    outputAssetsDir.createDirectories()
     outputAssetsDir
       .listDirectoryEntries("$baseName.*.$extension")
       .forEach { it.deleteIfExists() }

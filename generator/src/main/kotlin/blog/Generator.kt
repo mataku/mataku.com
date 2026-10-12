@@ -13,6 +13,7 @@ import kotlin.io.path.writeText
 class Generator {
   private val projectRoot: Path = Path.of("").toAbsolutePath()
   private val articlesDir: Path = projectRoot.resolve("articles")
+  private val staticDir: Path = projectRoot.resolve("static")
   private val outputDir: Path = projectRoot.resolve("output")
   private val articlesOutputDir: Path = outputDir.resolve("articles")
   private val templatePath: Path = projectRoot.resolve("templates/article.html")
@@ -20,6 +21,7 @@ class Generator {
 
   fun run() {
     articlesOutputDir.createDirectories()
+    syncStaticFiles()
 
     val cssFile = AssetHasher.processStylesCss(projectRoot)
     val themeJsFile = AssetHasher.processThemeJs(projectRoot)
@@ -105,6 +107,13 @@ class Generator {
       SitemapGenerator.generate()
       TagPageGenerator.generate()
     }
+  }
+
+  private fun syncStaticFiles() {
+    val copied =
+      StaticFileSyncer.sync(staticDir, outputDir) +
+        StaticFileSyncer.sync(articlesDir, articlesOutputDir) { it.extension != "md" }
+    println("Synced static files: $copied copied")
   }
 
   private fun generateStaticPage(

@@ -22,7 +22,7 @@ https://github.com/Betterment/alchemist#about-platform-tests-vs-ci-tests
 
 Platform tests ではなく CI tests の設定で動かしており、Ahem というフォントで置き換わることでフォントレンダリングによる環境の差異でテストができるだけ落ちないようにする方向で運用し始めた。Ahem 自体は flutter_test でも使われる。
 
-![](/images/banner_golden_test.png "テキストを使った golden image")
+![](/articles/alchemist/banner_golden_test.png "テキストを使った golden image")
 
 
 モバイルアプリという観点だと、ちゃんと作るなら iOS/Android でフォントが異なるので、それをちゃんと検証したほうが良いだろうかというのは悩んでいる。ただ、Text の font size や line-height みたいなプロパティによって描画領域はちゃんと変わって差分として検出されるし、テスト自体がそもそも面倒なので、フォントは figma みたいなところで確認できれば良いのかなと落ち着いている。

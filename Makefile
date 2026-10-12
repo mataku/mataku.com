@@ -1,4 +1,4 @@
-.PHONY: generate dev deploy new feed build-worker serve
+.PHONY: generate dev deploy new feed build-worker serve clean
 
 generate:
 	./gradlew :generator:run --no-daemon
@@ -22,6 +22,9 @@ build-worker:
 
 serve:
 	npx cf dev
+
+clean:
+	rm -rf output
 
 deploy: build-worker generate
 	npx cf deploy
