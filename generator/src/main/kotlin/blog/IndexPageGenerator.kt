@@ -55,6 +55,11 @@ object IndexPageGenerator {
         }
       if (OutputWriter.writeIfChanged(outputPath, html)) println("Generated: $outputPath")
     }
+
+    val markdownOutputPath = outputDir.resolve("index.md")
+    if (OutputWriter.writeIfChanged(markdownOutputPath, MarkdownPageRenderer.renderIndex(articles))) {
+      println("Generated: $markdownOutputPath")
+    }
   }
 
   internal fun collectArticles(): List<ArticleSummary> {

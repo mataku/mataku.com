@@ -90,6 +90,17 @@ class Generator {
       val html = TemplateEngine.render(articleTemplate, variables)
       val outputFile = articlesOutputDir.resolve("$slug.html")
       if (OutputWriter.writeIfChanged(outputFile, html)) println("Generated: $outputFile")
+
+      val markdown =
+        MarkdownPageRenderer.renderArticle(
+          title = article.metadata["title"] ?: slug,
+          isoDate = DateFormatter.toIsoDate(rawDate),
+          url = "https://mataku.com/articles/$slug",
+          tags = article.tags,
+          content = article.content,
+        )
+      val markdownOutputFile = articlesOutputDir.resolve("$slug.md")
+      if (OutputWriter.writeIfChanged(markdownOutputFile, markdown)) println("Generated: $markdownOutputFile")
     }
 
     val notFoundOutputPath = outputDir.resolve("404.html")
