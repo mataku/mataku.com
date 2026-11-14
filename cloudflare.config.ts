@@ -9,7 +9,7 @@ export default defineConfig({
 			enabled: true,
 		},
 		assets: {
-			runWorkerFirst: false,
+			runWorkerFirst: ["/", "/articles/*", "!/articles/*/*"],
 		},
 		env: {
 			ASSETS: bindings.assets(),

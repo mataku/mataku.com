@@ -42,13 +42,22 @@ internal fun resolveRoute(pathname: String): Route {
     pathname.startsWith("assets/") -> Route.Asset(pathname)
     pathname.startsWith("articles/") && !pathname.contains(".") -> Route.Article(pathname)
     pathname.startsWith("articles/") && pathname.endsWith(".html") -> Route.Article(pathname.removeSuffix(".html"))
+    pathname.startsWith("articles/") && pathname.endsWith(".md") -> Route.Asset(pathname)
     else -> Route.NotFound
   }
 }
 
+internal fun canonicalPathFor(pathname: String): String? =
+  if (pathname.startsWith("articles/") && pathname.endsWith(".html")) {
+    "/${pathname.removeSuffix(".html")}"
+  } else {
+    null
+  }
+
 internal fun contentTypeFor(filename: String): String? =
   when {
     filename.endsWith(".html") -> "text/html; charset=utf-8"
+    filename.endsWith(".md") -> "text/markdown; charset=utf-8"
     filename.endsWith(".css") -> "text/css; charset=utf-8"
     filename.endsWith(".js") -> "application/javascript; charset=utf-8"
     filename.endsWith(".gif") -> "image/gif"
@@ -61,6 +70,7 @@ internal fun contentTypeFor(filename: String): String? =
 internal fun cacheControlFor(filename: String): String =
   when {
     filename.endsWith(".html") -> "public, max-age=86400"
+    filename.endsWith(".md") -> PAGE_CACHE_CONTROL
     filename.endsWith(".css") || filename.endsWith(".js") -> "public, max-age=31536000, immutable"
     filename.endsWith(".gif") || filename.endsWith(".png") || filename.endsWith(".ico") -> "public, max-age=31536000, immutable"
     filename.endsWith(".json") -> "public, max-age=86400"

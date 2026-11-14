@@ -43,6 +43,33 @@ class RoutingTest {
   }
 
   @Test
+  fun canonicalPathFor_articleWithHtmlExtension_returnsExtensionlessPath() {
+    assertEquals("/articles/my-article", canonicalPathFor("articles/my-article.html"))
+  }
+
+  @Test
+  fun canonicalPathFor_canonicalOrUnrelatedPaths_returnsNull() {
+    assertEquals(null, canonicalPathFor("articles/my-article"))
+    assertEquals(null, canonicalPathFor("articles/my-article.md"))
+    assertEquals(null, canonicalPathFor(""))
+  }
+
+  @Test
+  fun resolveRoute_articleWithMarkdownExtension_returnsAsset() {
+    assertEquals(Route.Asset("articles/my-article.md"), resolveRoute("articles/my-article.md"))
+  }
+
+  @Test
+  fun contentTypeFor_markdown_returnsMarkdownMimeType() {
+    assertEquals("text/markdown; charset=utf-8", contentTypeFor("articles/my-article.md"))
+  }
+
+  @Test
+  fun cacheControlFor_markdown_matchesHtmlRevalidation() {
+    assertEquals("public, max-age=0, must-revalidate", cacheControlFor("articles/my-article.md"))
+  }
+
+  @Test
   fun resolveRoute_pathWithDotDot_returnsNotFound() {
     assertEquals(Route.NotFound, resolveRoute("../etc/passwd"))
   }

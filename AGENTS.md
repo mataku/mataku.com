@@ -11,7 +11,7 @@ Personal blog built with Kotlin.
 ## Build & Run Commands
 
 ```bash
-# Sync static/ + article images, then generate article HTML + index.html + feed.xml + sitemap.xml → output/
+# Sync static/ + article images, then generate article HTML/Markdown + index.html + index.md + feed.xml + sitemap.xml → output/
 make generate
 
 # Generate only changed articles (DEV mode)
@@ -44,7 +44,8 @@ Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `ou
 **Pipeline:** `StaticFileSyncer.sync()` (copies `static/` and `articles/<slug>/*` into `output/`) → `FrontmatterParser.parse()` → `MarkdownRenderer` (commonmark) → transformers (`ImageCaptionTransformer`, `XEmbedTransformer`, `GistEmbedTransformer`) → `TemplateEngine.render()` (`{{key}}` replacement) → write to `output/`
 
 - `Generator`: Orchestrates HTML generation for all articles, index pages, feed, and sitemap
-- `IndexPageGenerator`: Generates paginated index pages (20 articles/page)
+- `IndexPageGenerator`: Generates paginated index pages (20 articles/page) and `index.md`
+- `MarkdownPageRenderer`: Renders the Markdown variants served to agents: `articles/<slug>.md` (title, metadata, source body) and `index.md` (links to every listed article)
 - `FeedGenerator`: Generates Atom RSS feed (`feed.xml`)
 - `SitemapGenerator`: Generates XML sitemap (`sitemap.xml`)
 - `ArticleCreator`: Creates new article markdown files from `templates/article.md` with current date
@@ -59,13 +60,15 @@ Converts `articles/*.md` (with YAML frontmatter) to HTML and outputs them to `ou
 
 Kotlin/Wasm module compiled to WebAssembly that runs as a Cloudflare Worker. Handles routing, response headers (Content-Type, Cache-Control, security headers), and serves static assets via the ASSETS binding.
 
-- `Worker.kt` (`src/wasmJsMain/kotlin/`): Route resolution (sealed class `Route`), asset fetching, robots.txt/sitemap.xml generation, 404 handling. Only GET requests are allowed.
+- `Worker.kt` (`src/wasmJsMain/kotlin/`): Request handling, asset fetching, robots.txt generation, 404 handling. Only GET and HEAD requests are allowed. The index and article pages are served as HTML by default and as Markdown when the request's `Accept` header lists `text/markdown`; both variants carry `Vary: Accept`, a `Link` header (sitemap, feed, Markdown alternate) and the asset's `ETag`.
+- `Routing.kt`: Route resolution (sealed class `Route`), content types and cache policies per file extension.
+- `Negotiation.kt`: `Accept` header parsing, the HTML/Markdown asset paths of a page, the `Link` header value, and the robots.txt (with Content Signals) and Markdown 404 bodies.
 - `entry.js`: JS entry point for the Worker. It instantiates `blog-worker.wasm` with the `importObject` exported by the generated `blog-worker.import-object.mjs` and exposes the Kotlin `fetch` export as the Worker handler. The generated `blog-worker.mjs` loader is not used because its environment detection does not support Cloudflare Workers (see KT-65796, KT-73159) and its shape changes between Kotlin releases.
 - `build.gradle.kts`: Kotlin/Wasm target configuration (nodejs runtime for tests, executable binary)
 
 ### Cloudflare Workers + Static Assets
 
-Deployed via `cf deploy` ([cf CLI](https://blog.cloudflare.com/cloudflare-cf-cli-launch/), which delegates bundling to Wrangler). Static assets are served directly when matched (`runWorkerFirst: false`); the Worker handles routing and headers for everything else.
+Deployed via `cf deploy` ([cf CLI](https://blog.cloudflare.com/cloudflare-cf-cli-launch/), which delegates bundling to Wrangler). The Worker runs first for `/` and `/articles/<slug>` (`runWorkerFirst` in `cloudflare.config.ts`) so it can negotiate HTML vs. Markdown and set response headers. Every other path that matches a static asset (article images, `/assets/*`, `/page/*`, `/tags/*`, `feed.xml`, `sitemap.xml`) is served directly without invoking the Worker; the Worker handles whatever is left (robots.txt, 404).
 
 - `cloudflare.config.ts`: cf project configuration (project name: `mataku-com`, entry: `worker/entry.js`, `ASSETS` binding)
 - `wrangler.config.ts`: Wrangler bundler options used by cf (assets dir: `output/`)

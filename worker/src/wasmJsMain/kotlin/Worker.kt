@@ -21,26 +21,54 @@ private fun getPathname(url: JsAny): JsString = js("url.pathname")
 
 private fun getOrigin(url: JsAny): JsString = js("url.origin")
 
+private fun newAssetRequest(
+  url: String,
+  ifNoneMatch: String?,
+): Request = js("new Request(url, ifNoneMatch ? { headers: { 'if-none-match': ifNoneMatch } } : undefined)")
+
 private fun buildHeadersJs(
   contentType: String,
   cacheControl: String,
+  vary: String? = null,
+  link: String? = null,
+  etag: String? = null,
 ): JsAny =
   js(
-    """({
-    "content-type": contentType,
-    "cache-control": cacheControl,
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "Referrer-Policy": "strict-origin-when-cross-origin"
-})""",
+    """{
+    const headers = {
+        "content-type": contentType,
+        "cache-control": cacheControl,
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+    };
+    if (vary) headers["vary"] = vary;
+    if (link) headers["link"] = link;
+    if (etag) headers["etag"] = etag;
+    return headers;
+}""",
   )
+
+private fun redirectHeadersJs(location: String): JsAny = js("({ location: location })")
+
+private class RequestContext(
+  val env: Env,
+  val origin: String,
+  val wantsMarkdown: Boolean,
+  val ifNoneMatch: String?,
+)
+
+private const val HTML_CONTENT_TYPE = "text/html; charset=utf-8"
+private const val MARKDOWN_CONTENT_TYPE = "text/markdown; charset=utf-8"
+private const val STATUS_NOT_MODIFIED: Short = 304
+private const val STATUS_TEMPORARY_REDIRECT: Short = 307
 
 @JsExport
 fun fetch(
   request: Request,
   env: JsAny,
 ): Promise<Response> {
-  if (request.method != "GET") {
+  if (request.method != "GET" && request.method != "HEAD") {
     val headers =
       buildHeadersJs(
         contentType = "text/plain; charset=utf-8",
@@ -52,22 +80,35 @@ fun fetch(
   }
   val url = newURL(request.url)
   val pathname = getPathname(url).toString().removePrefix("/")
-  val origin = getOrigin(url).toString()
-  val route = resolveRoute(pathname)
-  return handleRoute(route, env, origin)
+  canonicalPathFor(pathname)?.let { canonicalPath ->
+    return Promise.resolve(
+      Response(null, ResponseInit(status = STATUS_TEMPORARY_REDIRECT, headers = redirectHeadersJs(canonicalPath))),
+    )
+  }
+  val context =
+    RequestContext(
+      env = env.unsafeCast<Env>(),
+      origin = getOrigin(url).toString(),
+      wantsMarkdown = acceptsMarkdown(request.headers.get("Accept")),
+      ifNoneMatch = request.headers.get("If-None-Match"),
+    )
+  return handleRoute(resolveRoute(pathname), context)
 }
 
-private fun notFoundHandler(
-  env: Env,
-  origin: String,
-): Promise<Response> {
+private fun notFoundHandler(context: RequestContext): Promise<Response> {
   val headers =
     buildHeadersJs(
-      contentType = "text/html; charset=utf-8",
+      contentType = if (context.wantsMarkdown) MARKDOWN_CONTENT_TYPE else HTML_CONTENT_TYPE,
       cacheControl = "public, max-age=300",
+      vary = "Accept",
     )
-  return env.ASSETS
-    .fetch(Request("$origin/404.html".toJsString()))
+  if (context.wantsMarkdown) {
+    return Promise.resolve(
+      Response(NOT_FOUND_MARKDOWN.toJsString(), ResponseInit(status = 404, headers = headers)),
+    )
+  }
+  return context.env.ASSETS
+    .fetch(Request("${context.origin}/404.html".toJsString()))
     .then { response: Response ->
       if (response.ok) {
         Response(response.body, ResponseInit(status = 404, headers = headers))
@@ -79,48 +120,48 @@ private fun notFoundHandler(
 
 private fun handleRoute(
   route: Route,
-  env: JsAny,
-  origin: String,
-): Promise<Response> {
-  val typedEnv = env.unsafeCast<Env>()
-  return when (route) {
+  context: RequestContext,
+): Promise<Response> =
+  when (route) {
     is Route.RobotsTxt -> robotsTxtHandler()
     is Route.SitemapXml -> sitemapXmlHandler()
-    is Route.NotFound -> notFoundHandler(typedEnv, origin)
-    is Route.Index -> indexHandler(typedEnv, origin)
-    is Route.Asset -> assetHandler(route.key, typedEnv, origin)
-    is Route.Article -> articleHandler(route.slug, typedEnv, origin)
+    is Route.NotFound -> notFoundHandler(context)
+    is Route.Asset -> assetHandler(route.key, context)
+    is Route.Index, is Route.Article -> pageHandler(pageFor(route)!!, context)
   }
-}
 
-private fun indexHandler(
-  env: Env,
-  origin: String,
-): Promise<Response> = fetchFromAssets("index.html", env, origin)
+private fun pageHandler(
+  page: Page,
+  context: RequestContext,
+): Promise<Response> {
+  val path = if (context.wantsMarkdown) page.markdownPath else page.htmlPath
+  return context.env.ASSETS
+    .fetch(newAssetRequest("${context.origin}/$path", context.ifNoneMatch))
+    .then { response: Response ->
+      val headers =
+        buildHeadersJs(
+          contentType = if (context.wantsMarkdown) MARKDOWN_CONTENT_TYPE else HTML_CONTENT_TYPE,
+          cacheControl = PAGE_CACHE_CONTROL,
+          vary = "Accept",
+          link = linkHeaderFor(page),
+          etag = response.headers.get("etag"),
+        )
+      when {
+        response.ok -> Promise.resolve(Response(response.body, ResponseInit(headers = headers)))
+        response.status == STATUS_NOT_MODIFIED ->
+          Promise.resolve(Response(null, ResponseInit(status = STATUS_NOT_MODIFIED, headers = headers)))
+        else -> notFoundHandler(context)
+      }
+    }.unsafeCast<Promise<Response>>()
+}
 
 private fun assetHandler(
   key: String,
-  env: Env,
-  origin: String,
-): Promise<Response> = fetchFromAssets(key, env, origin)
-
-private fun articleHandler(
-  slug: String,
-  env: Env,
-  origin: String,
-): Promise<Response> = fetchFromAssets("$slug.html", env, origin)
-
-private fun fetchFromAssets(
-  key: String,
-  env: Env,
-  origin: String,
+  context: RequestContext,
 ): Promise<Response> {
-  val contentType = contentTypeFor(key)
-  if (contentType == null) {
-    return notFoundHandler(env, origin)
-  }
-  return env.ASSETS
-    .fetch(Request("$origin/$key".toJsString()))
+  val contentType = contentTypeFor(key) ?: return notFoundHandler(context)
+  return context.env.ASSETS
+    .fetch(Request("${context.origin}/$key".toJsString()))
     .then { response: Response ->
       if (response.ok) {
         val headers =
@@ -130,24 +171,18 @@ private fun fetchFromAssets(
           )
         Promise.resolve(Response(response.body, ResponseInit(headers = headers)))
       } else {
-        notFoundHandler(env, origin)
+        notFoundHandler(context)
       }
     }.unsafeCast<Promise<Response>>()
 }
 
 private fun robotsTxtHandler(): Promise<Response> {
-  val body =
-    """
-    User-agent: *
-    Allow: /
-    Sitemap: https://mataku.com/sitemap.xml
-    """.trimIndent()
   val headers =
     buildHeadersJs(
       contentType = "text/plain; charset=utf-8",
       cacheControl = "public, max-age=86400",
     )
-  return Promise.resolve(Response(body.toJsString(), ResponseInit(headers = headers)))
+  return Promise.resolve(Response(ROBOTS_TXT.toJsString(), ResponseInit(headers = headers)))
 }
 
 private fun sitemapXmlHandler(): Promise<Response> {
