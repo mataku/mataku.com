@@ -72,7 +72,7 @@ Deployed via `cf deploy` ([cf CLI](https://blog.cloudflare.com/cloudflare-cf-cli
 
 - `cloudflare.config.ts`: cf project configuration (project name: `mataku-com`, entry: `worker/entry.js`, `ASSETS` binding)
 - `wrangler.config.ts`: Wrangler bundler options used by cf (assets dir: `output/`)
-- `cf build` writes its output to `.cloudflare/output/` (used by `scripts/bundle-report.sh`)
+- `cf build` writes its output to `.cloudflare/output/v<N>/` (used by `scripts/bundle-report.sh`)
 - PR previews are deployed with `cf previews deploy` (`build.yaml`); cache purge after deploy uses `cf cache purge` (`deploy.yaml`)
 
 ## Key Directories
