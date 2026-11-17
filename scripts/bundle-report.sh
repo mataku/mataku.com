@@ -3,14 +3,21 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-BUNDLE_DIR=".cloudflare/output/v0/workers/default/bundle"
+BUILD_OUTPUT_DIR=".cloudflare/output"
 ASSETS_DIR="output"
 BASELINE="bundle-baseline.txt"
 METRICS="bundle-metrics.txt"
 REPORT="bundle-report.md"
 
-rm -rf "$BUNDLE_DIR"
+rm -rf "$BUILD_OUTPUT_DIR"
 npx cf build > /dev/null
+
+# The Build Output version directory (v0, v1, ...) changes between cf releases.
+BUNDLE_DIR=$(find "$BUILD_OUTPUT_DIR" -type d -path '*/workers/default/bundle' | head -n 1)
+if [ -z "$BUNDLE_DIR" ]; then
+  echo "Worker bundle not found under $BUILD_OUTPUT_DIR" >&2
+  exit 1
+fi
 
 baseline_get() {
   if [ -f "$BASELINE" ]; then
