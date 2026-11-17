@@ -13,9 +13,9 @@ rm -rf "$BUILD_OUTPUT_DIR"
 npx cf build > /dev/null
 
 # The Build Output version directory (v0, v1, ...) changes between cf releases.
-BUNDLE_DIR=$(find "$BUILD_OUTPUT_DIR" -type d -path '*/workers/default/bundle' | head -n 1)
-if [ -z "$BUNDLE_DIR" ]; then
-  echo "Worker bundle not found under $BUILD_OUTPUT_DIR" >&2
+BUNDLE_DIR=$(find "$BUILD_OUTPUT_DIR" -type d -path '*/workers/default/bundle')
+if [ -z "$BUNDLE_DIR" ] || [ "$(printf '%s\n' "$BUNDLE_DIR" | wc -l)" -ne 1 ]; then
+  echo "Expected exactly one worker bundle directory under $BUILD_OUTPUT_DIR, found: ${BUNDLE_DIR:-none}" >&2
   exit 1
 fi
 
@@ -73,6 +73,7 @@ worker_total_gzip=0
 file_rows=""
 
 for f in "$BUNDLE_DIR"/*; do
+  [ -f "$f" ] || continue
   name=$(basename "$f")
   case "$name" in
     *.map | README.md) continue ;;
@@ -83,6 +84,13 @@ for f in "$BUNDLE_DIR"/*; do
   worker_total_raw=$((worker_total_raw + raw))
   worker_total_gzip=$((worker_total_gzip + gz))
   file_rows+="${raw}"$'\t'"${name}"$'\t'"${gz}"$'\n'
+done
+
+for required in entry.js blog-worker.wasm; do
+  if ! printf '%s' "$file_rows" | cut -f 2 | grep -qxF "$required"; then
+    echo "$required not found in $BUNDLE_DIR" >&2
+    exit 1
+  fi
 done
 
 sorted=$(printf '%s' "$file_rows" | sort -rn)
